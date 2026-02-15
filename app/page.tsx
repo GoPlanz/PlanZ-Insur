@@ -3,7 +3,6 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
-  Calculator,
   TrendingUp,
   DollarSign,
   Shield,
@@ -13,14 +12,7 @@ import {
 } from "lucide-react";
 
 const tools = [
-  {
-    id: "birthday-calculator",
-    name: "生日回溯计算器",
-    description: "输入出生日期，查看六家保司的回溯机会，计算费率上涨前的剩余时间",
-    icon: Clock,
-    status: "ready",
-    phase: "阶段一",
-  },
+  // 储蓄险相关工具（优先展示）
   {
     id: "compound-compare",
     name: "复利与资产对比",
@@ -28,6 +20,7 @@ const tools = [
     icon: TrendingUp,
     status: "coming",
     phase: "阶段一",
+    category: "savings",
   },
   {
     id: "fx-calculator",
@@ -36,14 +29,7 @@ const tools = [
     icon: DollarSign,
     status: "coming",
     phase: "阶段二",
-  },
-  {
-    id: "critical-illness",
-    name: "重疾条款对比",
-    description: "香港各保司重疾定义对照表，理赔数据与高发疾病分析",
-    icon: Shield,
-    status: "coming",
-    phase: "阶段二",
+    category: "savings",
   },
   {
     id: "wealth-simulator",
@@ -52,6 +38,27 @@ const tools = [
     icon: Gamepad2,
     status: "coming",
     phase: "阶段三",
+    category: "savings",
+  },
+  // 通用工具
+  {
+    id: "birthday-calculator",
+    name: "生日回溯计算器",
+    description: "输入出生日期，查看六家保司的回溯机会，计算费率上涨前的剩余时间",
+    icon: Clock,
+    status: "ready",
+    phase: "阶段一",
+    category: "general",
+  },
+  // 重疾险相关工具（放后面）
+  {
+    id: "critical-illness",
+    name: "重疾条款对比",
+    description: "香港各保司重疾定义对照表，理赔数据与高发疾病分析",
+    icon: Shield,
+    status: "coming",
+    phase: "阶段二",
+    category: "critical",
   },
 ];
 
@@ -65,60 +72,172 @@ export default function HomePage() {
             PlanZ Insurance Tools
           </Badge>
           <h1 className="text-4xl sm:text-5xl font-bold tracking-tight">
-            香港保险工具站
+            配置香港保险前
+            <br />
+            这些问题您有答案了吗
           </h1>
           <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-            游戏化保险教育工具，让复杂的保险决策变得简单直观
+            复利和定存差距有多大？汇率风险怎么算？年龄回溯能省多少？
+            <br />
+            用这些工具算清楚，再决定怎么配置
           </p>
         </div>
       </section>
 
       {/* Tools Grid */}
       <section className="py-12 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-6xl mx-auto">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {tools.map((tool) => {
-              const Icon = tool.icon;
-              const isReady = tool.status === "ready";
+        <div className="max-w-6xl mx-auto space-y-10">
+          {/* 储蓄险工具（核心产品） */}
+          <div>
+            <h2 className="text-lg font-medium text-muted-foreground mb-4">储蓄险规划工具</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {tools
+                .filter((tool) => tool.category === "savings")
+                .map((tool) => {
+                  const Icon = tool.icon;
+                  const isReady = tool.status === "ready";
 
-              return (
-                <Card
-                  key={tool.id}
-                  className={`transition-all duration-300 ${
-                    isReady
-                      ? "hover:border-primary/50 hover:shadow-lg cursor-pointer"
-                      : "opacity-60"
-                  }`}
-                >
-                  <CardHeader>
-                    <div className="flex items-start justify-between">
-                      <div className="p-2 rounded-lg bg-primary/10">
-                        <Icon className="h-6 w-6 text-primary" />
-                      </div>
-                      <Badge variant={isReady ? "default" : "secondary"}>
-                        {isReady ? "可用" : tool.phase}
-                      </Badge>
-                    </div>
-                    <CardTitle className="mt-4">{tool.name}</CardTitle>
-                    <CardDescription>{tool.description}</CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    {isReady ? (
-                      <Link href={`/${tool.id}`}>
-                        <Button className="w-full">
-                          开始使用
-                          <ArrowRight className="ml-2 h-4 w-4" />
-                        </Button>
-                      </Link>
-                    ) : (
-                      <Button variant="outline" className="w-full" disabled>
-                        即将上线
-                      </Button>
-                    )}
-                  </CardContent>
-                </Card>
-              );
-            })}
+                  return (
+                    <Card
+                      key={tool.id}
+                      className={`transition-all duration-300 ${
+                        isReady
+                          ? "hover:border-primary/50 hover:shadow-lg cursor-pointer"
+                          : "opacity-60"
+                      }`}
+                    >
+                      <CardHeader>
+                        <div className="flex items-start justify-between">
+                          <div className="p-2 rounded-lg bg-primary/10">
+                            <Icon className="h-6 w-6 text-primary" />
+                          </div>
+                          <Badge variant={isReady ? "default" : "secondary"}>
+                            {isReady ? "可用" : tool.phase}
+                          </Badge>
+                        </div>
+                        <CardTitle className="mt-4">{tool.name}</CardTitle>
+                        <CardDescription>{tool.description}</CardDescription>
+                      </CardHeader>
+                      <CardContent>
+                        {isReady ? (
+                          <Link href={`/${tool.id}`}>
+                            <Button className="w-full">
+                              开始使用
+                              <ArrowRight className="ml-2 h-4 w-4" />
+                            </Button>
+                          </Link>
+                        ) : (
+                          <Button variant="outline" className="w-full" disabled>
+                            即将上线
+                          </Button>
+                        )}
+                      </CardContent>
+                    </Card>
+                  );
+                })}
+            </div>
+          </div>
+
+          {/* 通用工具 */}
+          <div>
+            <h2 className="text-lg font-medium text-muted-foreground mb-4">费率优化工具</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {tools
+                .filter((tool) => tool.category === "general")
+                .map((tool) => {
+                  const Icon = tool.icon;
+                  const isReady = tool.status === "ready";
+
+                  return (
+                    <Card
+                      key={tool.id}
+                      className={`transition-all duration-300 ${
+                        isReady
+                          ? "hover:border-primary/50 hover:shadow-lg cursor-pointer"
+                          : "opacity-60"
+                      }`}
+                    >
+                      <CardHeader>
+                        <div className="flex items-start justify-between">
+                          <div className="p-2 rounded-lg bg-primary/10">
+                            <Icon className="h-6 w-6 text-primary" />
+                          </div>
+                          <Badge variant={isReady ? "default" : "secondary"}>
+                            {isReady ? "可用" : tool.phase}
+                          </Badge>
+                        </div>
+                        <CardTitle className="mt-4">{tool.name}</CardTitle>
+                        <CardDescription>{tool.description}</CardDescription>
+                      </CardHeader>
+                      <CardContent>
+                        {isReady ? (
+                          <Link href={`/${tool.id}`}>
+                            <Button className="w-full">
+                              开始使用
+                              <ArrowRight className="ml-2 h-4 w-4" />
+                            </Button>
+                          </Link>
+                        ) : (
+                          <Button variant="outline" className="w-full" disabled>
+                            即将上线
+                          </Button>
+                        )}
+                      </CardContent>
+                    </Card>
+                  );
+                })}
+            </div>
+          </div>
+
+          {/* 重疾险工具 */}
+          <div>
+            <h2 className="text-lg font-medium text-muted-foreground mb-4">重疾保障工具</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {tools
+                .filter((tool) => tool.category === "critical")
+                .map((tool) => {
+                  const Icon = tool.icon;
+                  const isReady = tool.status === "ready";
+
+                  return (
+                    <Card
+                      key={tool.id}
+                      className={`transition-all duration-300 ${
+                        isReady
+                          ? "hover:border-primary/50 hover:shadow-lg cursor-pointer"
+                          : "opacity-60"
+                      }`}
+                    >
+                      <CardHeader>
+                        <div className="flex items-start justify-between">
+                          <div className="p-2 rounded-lg bg-primary/10">
+                            <Icon className="h-6 w-6 text-primary" />
+                          </div>
+                          <Badge variant={isReady ? "default" : "secondary"}>
+                            {isReady ? "可用" : tool.phase}
+                          </Badge>
+                        </div>
+                        <CardTitle className="mt-4">{tool.name}</CardTitle>
+                        <CardDescription>{tool.description}</CardDescription>
+                      </CardHeader>
+                      <CardContent>
+                        {isReady ? (
+                          <Link href={`/${tool.id}`}>
+                            <Button className="w-full">
+                              开始使用
+                              <ArrowRight className="ml-2 h-4 w-4" />
+                            </Button>
+                          </Link>
+                        ) : (
+                          <Button variant="outline" className="w-full" disabled>
+                            即将上线
+                          </Button>
+                        )}
+                      </CardContent>
+                    </Card>
+                  );
+                })}
+            </div>
           </div>
         </div>
       </section>
