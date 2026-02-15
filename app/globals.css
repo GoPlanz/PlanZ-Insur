@@ -121,9 +121,15 @@
     -moz-osx-font-smoothing: grayscale;
     /* 字体显示策略 */
     font-display: swap;
+    /* 防止过度滚动 */
+    overflow-y: scroll;
+    overflow-x: hidden;
   }
   body {
     @apply bg-background text-foreground;
+    /* 限制body高度防止hydration期间的滚动问题 */
+    overflow-x: hidden;
+    min-height: 100vh;
   }
 }
 
