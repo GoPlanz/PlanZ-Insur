@@ -1,4 +1,4 @@
-import { differenceInDays, addYears, isBefore, isAfter, addMonths } from "date-fns";
+import { differenceInDays, addYears, isBefore, isAfter } from "date-fns";
 
 /**
  * 保险公司年龄计算规则
@@ -118,13 +118,32 @@ function calculateNearestAge(birthDate: Date, asOfDate: Date): number {
   if (isAfter(lastBirthday, asOfDate)) {
     lastBirthday.setFullYear(lastBirthday.getFullYear() - 1);
   }
-  const boundary = addMonths(lastBirthday, 6);
+  const boundary = addMonthsSafe(lastBirthday, 6);
 
   // 如果当前日期 > 分界线，年龄 = ALB + 1
   if (isAfter(asOfDate, boundary) || asOfDate.getTime() === boundary.getTime()) {
     return alb + 1;
   }
   return alb;
+}
+
+/**
+ * 安全添加月份，保持日期一致性
+ * 处理月份天数差异（如31日加6个月可能是30日）
+ */
+function addMonthsSafe(date: Date, months: number): Date {
+  const result = new Date(date);
+  const targetMonth = result.getMonth() + months;
+  result.setMonth(targetMonth);
+
+  // 如果日期被调整了（如31日->30日），保持原日期或月末
+  const expectedDate = date.getDate();
+  if (result.getDate() !== expectedDate) {
+    // 设置为上个月的最后一天
+    result.setDate(0);
+  }
+
+  return result;
 }
 
 /**
@@ -142,7 +161,7 @@ function getNextAgeDate(birthDate: Date, calcMethod: "ALB" | "ANB" | "Nearest", 
     if (isBefore(nextBirthday, fromDate) || nextBirthday.getTime() === fromDate.getTime()) {
       nextBirthday.setFullYear(currentYear + 1);
     }
-    return addMonths(nextBirthday, 6);
+    return addMonthsSafe(nextBirthday, 6);
   }
 
   if (calcMethod === "ANB") {
@@ -161,12 +180,12 @@ function getNextAgeDate(birthDate: Date, calcMethod: "ALB" | "ANB" | "Nearest", 
   if (isAfter(lastBirthday, fromDate)) {
     lastBirthday.setFullYear(currentYear - 1);
   }
-  const boundary = addMonths(lastBirthday, 6);
+  const boundary = addMonthsSafe(lastBirthday, 6);
 
   if (isAfter(fromDate, boundary)) {
     // 已过临界点，下次涨价是下次生日+6个月
     const nextBirthday = addYears(lastBirthday, 1);
-    return addMonths(nextBirthday, 6);
+    return addMonthsSafe(nextBirthday, 6);
   }
   return boundary;
 }
