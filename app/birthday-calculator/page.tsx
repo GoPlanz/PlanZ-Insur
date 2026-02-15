@@ -212,7 +212,7 @@ export default function BirthdayCalculatorPage() {
             <CardHeader>
               <CardTitle>计算你的投保年龄</CardTitle>
               <CardDescription>
-                支持AIA、AXA、Manulife、Prudential、Sun Life、YF Life六家保司
+                支持友邦、安盛、宏利、保诚、永明、万通六家保司（按英文首字母排序）
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
