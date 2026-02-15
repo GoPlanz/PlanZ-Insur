@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { format } from "date-fns";
 import { zhCN } from "date-fns/locale";
 import { Clock, AlertCircle, CheckCircle2, ChevronRight } from "lucide-react";
@@ -168,6 +168,7 @@ export default function BirthdayCalculatorPage() {
   const [birthDate, setBirthDate] = useState<Date | undefined>(undefined);
   const [results, setResults] = useState<AgeCalculationResult[] | null>(null);
   const [minDays, setMinDays] = useState<number>(0);
+  const resultsRef = useRef<HTMLDivElement>(null);
 
   const handleCalculate = useCallback(() => {
     if (!birthDate) return;
@@ -178,6 +179,11 @@ export default function BirthdayCalculatorPage() {
     // 找到最小的天数（最紧迫的）
     const min = Math.min(...allResults.map((r) => r.daysUntilNextAge));
     setMinDays(min);
+
+    // 滚动到结果区域
+    setTimeout(() => {
+      resultsRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+    }, 100);
   }, [birthDate]);
 
   return (
@@ -206,7 +212,7 @@ export default function BirthdayCalculatorPage() {
             <CardHeader>
               <CardTitle>计算你的投保年龄</CardTitle>
               <CardDescription>
-                支持友邦、保诚、宏利、安盛、万通、永明六家保司
+                支持AIA、AXA、Manulife、Prudential、Sun Life、YF Life六家保司
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
@@ -236,6 +242,7 @@ export default function BirthdayCalculatorPage() {
       </section>
 
       {/* Results Section */}
+      <div ref={resultsRef} />
       {results && (
         <section className="py-12 px-4 sm:px-6 lg:px-8">
           <div className="max-w-6xl mx-auto space-y-12">
@@ -286,6 +293,12 @@ export default function BirthdayCalculatorPage() {
               </p>
             </div>
           </div>
+
+          {/* 免责声明 */}
+          <p className="text-xs text-muted-foreground text-center mt-8 pt-6 border-t border-border">
+            * 计算结果仅供参考，实际投保年龄和保费以保险公司最终核定为准。
+            不同产品的费率可能存在差异，具体请以正式保单为准。
+          </p>
         </section>
       )}
 

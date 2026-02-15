@@ -32,14 +32,6 @@ export const COMPANY_RULES: CompanyRule[] = [
     description: "刚过生日≤180天，可回溯至生日前一天",
   },
   {
-    id: "yf",
-    name: "万通",
-    nameEn: "YF Life",
-    calcMethod: "ALB",
-    backdateDays: 180,
-    description: "刚过生日≤180天，可回溯至生日前一天",
-  },
-  {
     id: "axa",
     name: "安盛",
     nameEn: "AXA",
@@ -48,12 +40,12 @@ export const COMPANY_RULES: CompanyRule[] = [
     description: "刚过生日≤180天，可回溯至生日前一天",
   },
   {
-    id: "sun",
-    name: "永明",
-    nameEn: "Sun Life",
-    calcMethod: "ALB",
+    id: "manu",
+    name: "宏利",
+    nameEn: "Manulife",
+    calcMethod: "Nearest",
     backdateDays: 180,
-    description: "刚过生日≤180天，可回溯至生日前一天",
+    description: "以「生日+6个月」为临界点，需特殊处理",
   },
   {
     id: "pru",
@@ -64,12 +56,20 @@ export const COMPANY_RULES: CompanyRule[] = [
     description: "回溯期较短，目标减少ANB",
   },
   {
-    id: "manu",
-    name: "宏利",
-    nameEn: "Manulife",
-    calcMethod: "Nearest",
+    id: "sun",
+    name: "永明",
+    nameEn: "Sun Life",
+    calcMethod: "ALB",
     backdateDays: 180,
-    description: "以「生日+6个月」为临界点，需特殊处理",
+    description: "刚过生日≤180天，可回溯至生日前一天",
+  },
+  {
+    id: "yf",
+    name: "万通",
+    nameEn: "YF Life",
+    calcMethod: "ALB",
+    backdateDays: 180,
+    description: "刚过生日≤180天，可回溯至生日前一天",
   },
 ];
 
