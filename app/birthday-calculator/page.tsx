@@ -3,12 +3,12 @@
 import { useState, useEffect, useCallback } from "react";
 import { format } from "date-fns";
 import { zhCN } from "date-fns/locale";
-import { CalendarIcon, Clock, AlertCircle, CheckCircle2, ChevronRight } from "lucide-react";
+import { Clock, AlertCircle, CheckCircle2, ChevronRight } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
+import { DatePicker } from "@/components/ui/date-picker";
 import {
   calculateAllCompanies,
   formatCountdown,
@@ -165,15 +165,14 @@ function CompanyResultCard({
 }
 
 export default function BirthdayCalculatorPage() {
-  const [birthDate, setBirthDate] = useState<string>("");
+  const [birthDate, setBirthDate] = useState<Date | undefined>(undefined);
   const [results, setResults] = useState<AgeCalculationResult[] | null>(null);
   const [minDays, setMinDays] = useState<number>(0);
 
   const handleCalculate = useCallback(() => {
     if (!birthDate) return;
 
-    const birth = new Date(birthDate);
-    const allResults = calculateAllCompanies(birth);
+    const allResults = calculateAllCompanies(birthDate);
     setResults(allResults);
 
     // 找到最小的天数（最紧迫的）
@@ -213,18 +212,13 @@ export default function BirthdayCalculatorPage() {
             <CardContent className="space-y-6">
               {/* 出生日期 */}
               <div className="space-y-2">
-                <Label htmlFor="birthdate">出生日期</Label>
-                <div className="relative">
-                  <CalendarIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                  <Input
-                    id="birthdate"
-                    type="date"
-                    value={birthDate}
-                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => setBirthDate(e.target.value)}
-                    className="pl-10"
-                    max={format(new Date(), "yyyy-MM-dd")}
-                  />
-                </div>
+                <Label htmlFor="birthdate" className="text-foreground font-medium">出生日期</Label>
+                <DatePicker
+                  date={birthDate}
+                  onSelect={setBirthDate}
+                  placeholder="选择你的出生日期"
+                  maxDate={new Date()}
+                />
               </div>
 
               <Button
