@@ -1,65 +1,134 @@
-import Image from "next/image";
+import Link from "next/link";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import {
+  Calculator,
+  TrendingUp,
+  DollarSign,
+  Shield,
+  Gamepad2,
+  ArrowRight,
+  Clock,
+} from "lucide-react";
 
-export default function Home() {
+const tools = [
+  {
+    id: "birthday-calculator",
+    name: "生日回溯计算器",
+    description: "输入出生日期，查看六家保司的回溯机会，计算费率上涨前的剩余时间",
+    icon: Clock,
+    status: "ready",
+    phase: "阶段一",
+  },
+  {
+    id: "compound-compare",
+    name: "复利与资产对比",
+    description: "银行定存 vs 保险复利的时间价值对比，资产配置雷达图分析",
+    icon: TrendingUp,
+    status: "coming",
+    phase: "阶段一",
+  },
+  {
+    id: "fx-calculator",
+    name: "汇率盈亏计算器",
+    description: "计算美元保单需要持有多少年才能抵消汇率下跌的损失",
+    icon: DollarSign,
+    status: "coming",
+    phase: "阶段二",
+  },
+  {
+    id: "critical-illness",
+    name: "重疾条款对比",
+    description: "香港各保司重疾定义对照表，理赔数据与高发疾病分析",
+    icon: Shield,
+    status: "coming",
+    phase: "阶段二",
+  },
+  {
+    id: "wealth-simulator",
+    name: "财富风险模拟器",
+    description: "游戏化推演：债务、婚变、税务等风险场景下的财富防御力测试",
+    icon: Gamepad2,
+    status: "coming",
+    phase: "阶段三",
+  },
+];
+
+export default function HomePage() {
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
+    <div className="min-h-screen bg-background">
+      {/* Hero Section */}
+      <section className="relative py-20 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-4xl mx-auto text-center space-y-6">
+          <Badge variant="outline" className="mb-4">
+            PlanZ Insurance Tools
+          </Badge>
+          <h1 className="text-4xl sm:text-5xl font-bold tracking-tight">
+            香港保险工具站
           </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
+          <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
+            游戏化保险教育工具，让复杂的保险决策变得简单直观
           </p>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+      </section>
+
+      {/* Tools Grid */}
+      <section className="py-12 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-6xl mx-auto">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {tools.map((tool) => {
+              const Icon = tool.icon;
+              const isReady = tool.status === "ready";
+
+              return (
+                <Card
+                  key={tool.id}
+                  className={`transition-all duration-300 ${
+                    isReady
+                      ? "hover:border-primary/50 hover:shadow-lg cursor-pointer"
+                      : "opacity-60"
+                  }`}
+                >
+                  <CardHeader>
+                    <div className="flex items-start justify-between">
+                      <div className="p-2 rounded-lg bg-primary/10">
+                        <Icon className="h-6 w-6 text-primary" />
+                      </div>
+                      <Badge variant={isReady ? "default" : "secondary"}>
+                        {isReady ? "可用" : tool.phase}
+                      </Badge>
+                    </div>
+                    <CardTitle className="mt-4">{tool.name}</CardTitle>
+                    <CardDescription>{tool.description}</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    {isReady ? (
+                      <Link href={`/${tool.id}`}>
+                        <Button className="w-full">
+                          开始使用
+                          <ArrowRight className="ml-2 h-4 w-4" />
+                        </Button>
+                      </Link>
+                    ) : (
+                      <Button variant="outline" className="w-full" disabled>
+                        即将上线
+                      </Button>
+                    )}
+                  </CardContent>
+                </Card>
+              );
+            })}
+          </div>
         </div>
-      </main>
+      </section>
+
+      {/* Footer */}
+      <footer className="py-12 px-4 sm:px-6 lg:px-8 border-t border-border">
+        <div className="max-w-6xl mx-auto text-center text-sm text-muted-foreground">
+          <p>PlanZ Insurance Tools · 专业香港保险咨询工具</p>
+        </div>
+      </footer>
     </div>
   );
 }
