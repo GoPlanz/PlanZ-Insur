@@ -189,12 +189,12 @@ export default function BirthdayCalculatorPage() {
             香港保险专用工具
           </Badge>
           <h1 className="text-4xl sm:text-5xl font-bold tracking-tight">
-            别让生日偷走你的保费
+            生日过后，你的保费可能正在「悄悄上涨」
           </h1>
           <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-            香港保险按「投保年龄」计算费率，每长一岁，保费上涨
+            刚过生日？你还有90-180天的回溯窗口，可以用更年轻的投保年龄锁定更低费率
             <br />
-            输入出生日期，查看六家保司的回溯机会
+            立即计算，看看六家保司哪家还能帮你省
           </p>
         </div>
       </section>
