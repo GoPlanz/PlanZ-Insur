@@ -94,7 +94,7 @@ export function DatePicker({
 
     // 填充空白
     for (let i = 0; i < firstDay; i++) {
-      days.push(<div key={`empty-${i}`} className="h-9 w-9" />)
+      days.push(<div key={`empty-${i}`} className="h-8 sm:h-9 w-full" />)
     }
 
     // 填充日期
@@ -115,7 +115,7 @@ export function DatePicker({
           onClick={() => handleDateSelect(d)}
           disabled={isFuture}
           className={cn(
-            "h-9 w-9 rounded-md text-sm hover:bg-accent hover:text-accent-foreground",
+            "h-8 w-full sm:h-9 rounded-md text-xs sm:text-sm hover:bg-accent hover:text-accent-foreground touch-manipulation",
             isSelected && "bg-primary text-primary-foreground hover:bg-primary/90",
             isToday && "ring-2 ring-ring",
             isFuture && "text-muted-foreground opacity-50 cursor-not-allowed"
@@ -149,25 +149,25 @@ export function DatePicker({
           )}
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-auto p-3" align="start">
-        <div className="space-y-3">
+      <PopoverContent className="w-auto p-2 sm:p-3" align="start">
+        <div className="space-y-2 sm:space-y-3">
           {/* 年份和月份选择器 */}
-          <div className="flex items-center justify-between gap-2">
+          <div className="flex items-center justify-between gap-1 sm:gap-2">
             <Button
               variant="outline"
               size="icon"
-              className="h-8 w-8"
+              className="h-8 w-8 flex-shrink-0"
               onClick={() => setViewMonth(prev => prev === 0 ? 11 : prev - 1)}
             >
               <ChevronLeftIcon className="h-4 w-4" />
             </Button>
 
-            <div className="flex items-center gap-1">
+            <div className="flex items-center gap-1 flex-1 justify-center">
               {/* 月份选择 */}
               <select
                 value={viewMonth}
                 onChange={(e) => handleMonthSelect(Number(e.target.value))}
-                className="h-8 rounded-md border border-input bg-background px-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+                className="h-8 min-w-[60px] sm:min-w-[70px] rounded-md border border-input bg-background px-1 sm:px-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
               >
                 {months.map((month, index) => (
                   <option key={index} value={index}>
@@ -180,11 +180,11 @@ export function DatePicker({
               <select
                 value={viewYear}
                 onChange={(e) => handleYearSelect(Number(e.target.value))}
-                className="h-8 rounded-md border border-input bg-background px-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+                className="h-8 min-w-[70px] sm:min-w-[80px] rounded-md border border-input bg-background px-1 sm:px-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
               >
                 {years.map((year) => (
                   <option key={year} value={year}>
-                    {year}年
+                    {year}
                   </option>
                 ))}
               </select>
@@ -193,7 +193,7 @@ export function DatePicker({
             <Button
               variant="outline"
               size="icon"
-              className="h-8 w-8"
+              className="h-8 w-8 flex-shrink-0"
               onClick={() => setViewMonth(prev => prev === 11 ? 0 : prev + 1)}
               disabled={viewYear === currentYear && viewMonth >= getMonth(maxDate)}
             >
@@ -202,7 +202,7 @@ export function DatePicker({
           </div>
 
           {/* 星期标题 */}
-          <div className="grid grid-cols-7 gap-1 text-center text-xs text-muted-foreground mb-1">
+          <div className="grid grid-cols-7 gap-0.5 sm:gap-1 text-center text-xs text-muted-foreground mb-0.5 sm:mb-1">
             <div>日</div>
             <div>一</div>
             <div>二</div>
@@ -213,7 +213,7 @@ export function DatePicker({
           </div>
 
           {/* 日历网格 */}
-          <div className="grid grid-cols-7 gap-1">
+          <div className="grid grid-cols-7 gap-0.5 sm:gap-1">
             {renderCalendar()}
           </div>
         </div>
