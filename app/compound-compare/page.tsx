@@ -344,27 +344,27 @@ function InputPanel({
   const yearShortcuts = [10, 20, 30, 40, 50, 60];
 
   return (
-    <div className="h-full flex flex-col">
-      {/* 核心结论 - 顶部 */}
-      <div className="p-6 border-b border-border bg-gradient-to-br from-primary/5 to-primary/10">
-        <Badge variant="outline" className="mb-3">
+    <Card className="h-full flex flex-col border-none shadow-none bg-transparent">
+      {/* 核心结论 - 卡片头部 */}
+      <CardHeader className="pb-4 px-4 pt-6 bg-gradient-to-br from-primary/10 to-primary/5 rounded-t-xl">
+        <Badge variant="outline" className="mb-2 w-fit">
           复利对比工具
         </Badge>
-        <h1 className="text-2xl font-bold mb-2">
+        <CardTitle className="text-2xl font-bold">
           {years}年后
-        </h1>
+        </CardTitle>
         <p className="text-3xl font-bold text-primary">
           复利是单利的 {multiplier} 倍
         </p>
-        <p className="text-sm text-muted-foreground mt-2">
+        <p className="text-sm text-muted-foreground">
           时间越久，差距越大
         </p>
-      </div>
+      </CardHeader>
 
-      {/* 输入区 */}
-      <div className="flex-1 overflow-y-auto p-6 space-y-8">
+      {/* 输入区 - 卡片内容 */}
+      <CardContent className="flex-1 overflow-y-auto px-4 py-6 space-y-6">
         {/* 本金输入 */}
-        <div className="space-y-4">
+        <div className="space-y-3">
           <div className="flex items-center justify-between">
             <Label htmlFor="principal" className="font-medium">投入本金</Label>
             <span className="text-xl font-bold text-primary">
@@ -390,7 +390,7 @@ function InputPanel({
         </div>
 
         {/* 单利利率 */}
-        <div className="space-y-4">
+        <div className="space-y-3">
           <div className="flex items-center justify-between">
             <div>
               <Label htmlFor="simpleRate" className="font-medium">单利投资</Label>
@@ -413,7 +413,7 @@ function InputPanel({
         </div>
 
         {/* 复利利率 */}
-        <div className="space-y-4">
+        <div className="space-y-3">
           <div className="flex items-center justify-between">
             <div>
               <Label htmlFor="compoundRate" className="font-medium">复利投资</Label>
@@ -501,8 +501,8 @@ function InputPanel({
             💡 示例数据，调整参数查看您的实际情况
           </p>
         )}
-      </div>
-    </div>
+      </CardContent>
+    </Card>
   );
 }
 
@@ -574,7 +574,7 @@ export default function CompoundComparePage() {
       {/* 桌面端：左右分栏 */}
       <div className="hidden lg:flex min-h-screen">
         {/* 左侧：输入面板 */}
-        <div className="w-[400px] border-r border-border bg-card flex flex-col">
+        <div className="w-[400px] bg-muted/30 flex flex-col">
           <InputPanel
             principal={principal} setPrincipal={setPrincipal}
             simpleRate={simpleRate} setSimpleRate={setSimpleRate}
