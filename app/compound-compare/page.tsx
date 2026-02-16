@@ -257,7 +257,7 @@ function CompoundChart({
         {result.years >= 7 && (
           <div className="flex items-center gap-2">
             <div className="w-2 h-2 rounded-full bg-red-500 border border-white" />
-            <span className="text-muted-foreground">7年锁定期结束</span>
+            <span className="text-muted-foreground">第7年锁定期结束</span>
           </div>
         )}
       </div>
@@ -291,7 +291,7 @@ function CompoundChart({
                     <td className="px-2 py-2">
                       {bank.year}年
                       {isInLockup && (
-                        <span className="ml-1 text-xs text-red-500">(锁定期)</span>
+                        <span className="ml-1 text-xs text-red-500">(锁定期内)</span>
                       )}
                     </td>
                     <td className="px-2 py-2 text-right font-mono text-blue-400">
@@ -605,12 +605,15 @@ export default function CompoundComparePage() {
                   <div className="text-center border-x border-border">
                     <div className="text-sm text-muted-foreground mb-1">
                       复利现金价值
-                      {years <= 7 && <span className="text-red-500 ml-1 text-xs">(锁定期)</span>}
+                      {years <= 7 && <span className="text-red-500 ml-1 text-xs">(锁定期内)</span>}
                     </div>
                     <div className="text-xl font-bold text-green-500">
                       {formatCurrency(cashValue)}
                     </div>
-                    <div className="text-xs text-muted-foreground">{formatRate(compoundRate)}/年</div>
+                    <div className="text-xs text-muted-foreground">
+                      {formatRate(compoundRate)}/年
+                      {years <= 7 && <span className="text-red-500 ml-1">• 第{years}年现金价值</span>}
+                    </div>
                   </div>
                   <div className="text-center">
                     <div className="text-sm text-muted-foreground mb-1">差距</div>
@@ -823,7 +826,7 @@ export default function CompoundComparePage() {
                 </div>
                 <div className="border-x border-border">
                   <div className="text-xs text-muted-foreground">
-                    复利{years <= 7 && <span className="text-red-500 text-xs">(锁定)</span>}
+                    复利{years <= 7 && <span className="text-red-500 text-xs">(锁定期内)</span>}
                   </div>
                   <div className="text-sm font-bold text-green-500">{formatCurrency(cashValue)}</div>
                 </div>
