@@ -16,9 +16,9 @@ const tools = [
   {
     id: "compound-compare",
     name: "复利与资产对比",
-    description: "银行定存 vs 保险复利的时间价值对比，资产配置雷达图分析",
+    description: "单利 vs 复利的时间价值对比，可视化展示长期财富差距",
     icon: TrendingUp,
-    status: "coming",
+    status: "ready",
     phase: "阶段一",
   },
   {
@@ -50,7 +50,7 @@ const tools = [
     name: "重疾条款对比",
     description: "香港各保司重疾定义对照表，理赔数据与高发疾病分析",
     icon: Shield,
-    status: "coming",
+    status: "ready",
     phase: "阶段二",
   },
 ];
@@ -61,9 +61,6 @@ export default function HomePage() {
       {/* Hero Section */}
       <section className="relative py-20 px-4 sm:px-6 lg:px-8">
         <div className="max-w-4xl mx-auto text-center space-y-6">
-          <Badge variant="outline" className="mb-4">
-            PlanZ Insurance Tools
-          </Badge>
           <h1 className="text-4xl sm:text-5xl font-bold tracking-tight">
             配置香港保险前
             <br />

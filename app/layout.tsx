@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import { SiteHeader } from "@/components/site-header";
 
 export const metadata: Metadata = {
   title: "PlanZ Insurance Tools | 保险工具站",
@@ -14,6 +15,7 @@ export default function RootLayout({
   return (
     <html lang="zh-CN">
       <body className="antialiased bg-background text-foreground">
+        <SiteHeader />
         {children}
       </body>
     </html>
