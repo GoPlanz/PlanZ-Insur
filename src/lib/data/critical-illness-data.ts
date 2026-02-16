@@ -9,6 +9,7 @@
 // =============================================================================
 
 export const INSURERS = [
+  { id: "mainland", name: "内地(2020新规)", nameEn: "Mainland China" },
   { id: "aia", name: "友邦", nameEn: "AIA" },
   { id: "prudential", name: "保诚", nameEn: "Prudential" },
   { id: "manulife", name: "宏利", nameEn: "Manulife" },
@@ -142,8 +143,13 @@ export const HIGH_INCIDENCE_DISEASES = [
  * 癌症定义差异
  */
 export const CANCER_DEFINITION_DIFFERENCES = {
-  common: "所有保司均排除原位癌、T1N0M0甲状腺癌、T1a/T1b前列腺癌，将它们归类为早期重疾。",
+  common: "所有保司均排除原位癌、T1N0M0甲状腺癌、T1a/T1b前列腺癌，将它们归类为早期重疾。内地新规将这些归为轻症。",
   insurerSpecific: {
+    mainland: {
+      prostate: "排除T1N0M0期前列腺癌（归入轻症，赔30%）",
+      thyroid: "排除TNM I期甲状腺癌（归入轻症，赔30%）",
+      carcinomaInSitu: "明确归为轻症，赔30%，上限10万",
+    },
     aia: {
       prostate: "排除T1a/T1b前列腺癌",
       thyroid: "排除T1N0M0甲状腺癌",
@@ -184,6 +190,7 @@ export const CANCER_DEFINITION_DIFFERENCES = {
 export const HEART_ATTACK_DEFINITION_DIFFERENCES = {
   common: "需符合典型胸痛、心电图改变、心肌酶升高中的若干项。",
   troponinI: {
+    mainland: "> 正常值15倍",
     aia: "> 0.5 ng/ml",
     prudential: "> 0.5 ng/ml",
     manulife: "> 0.5 ng/ml",
@@ -192,6 +199,7 @@ export const HEART_ATTACK_DEFINITION_DIFFERENCES = {
     sunlife: "> 0.5 ng/ml",
   },
   troponinT: {
+    mainland: "> 正常值15倍（非常严格）",
     aia: "> 1.0 ng/ml",
     manulife: "> 1.0 ng/ml",
     prudential: "> 0.6 ng/ml (较宽松)",
@@ -199,7 +207,7 @@ export const HEART_ATTACK_DEFINITION_DIFFERENCES = {
     yf: "> 1.0 ng/ml",
     sunlife: "> 1.0 ng/ml",
   },
-  notes: "安盛对Troponin T的要求最低（>0.2 ng/ml），其次是保诚（>0.6 ng/ml）。",
+  notes: "内地2020新规要求肌钙蛋白升高15倍才能赔100%，香港通常只需>0.2-1.0 ng/ml即可。安盛最宽松。",
 };
 
 /**
@@ -208,6 +216,7 @@ export const HEART_ATTACK_DEFINITION_DIFFERENCES = {
 export const STROKE_DEFINITION_DIFFERENCES = {
   common: "需有永久性神经机能缺损及影像学证据。",
   durationRequirement: {
+    mainland: "确诊180天后仍遗留下列障碍之一",
     aia: "确诊后持续至少4星期（28天）",
     prudential: "发病后至少4星期",
     manulife: "通常为4星期",
@@ -215,7 +224,7 @@ export const STROKE_DEFINITION_DIFFERENCES = {
     yf: "持续4个星期或以上",
     sunlife: "持续最少28日",
   },
-  notes: "六家香港保司在中风定义上高度一致，均要求神经功能障碍持续4周（28天），比中国内地重疾新规要求的180天要宽松很多。",
+  notes: "香港要求4周（28天），内地要求180天。香港理赔更快，更早获得赔偿金进行康复治疗。",
 };
 
 /**
@@ -223,6 +232,7 @@ export const STROKE_DEFINITION_DIFFERENCES = {
  */
 export const DEMENTIA_DEFINITION_DIFFERENCES = {
   mmseRequirement: {
+    mainland: "需MMSE≤10分或无法完成3项ADL",
     aia: "需MMSE < 10分",
     prudential: "未在定义中硬性规定MMSE分数",
     manulife: "未在手册详列",
@@ -230,7 +240,7 @@ export const DEMENTIA_DEFINITION_DIFFERENCES = {
     yf: "明确要求MMSE < 10分",
     sunlife: "MMSE < 10分或无法自理日常生活（替代判定）",
   },
-  notes: "万通和永明在脑退化症上明确了量化标准（MMSE<10分），标准清晰减少争议。永明额外提供了'无法自理'作为替代判定标准，相对灵活。",
+  notes: "万通和永明在脑退化症上明确了量化标准（MMSE<10分），标准清晰减少争议。永明额外提供了'无法自理'作为替代判定标准，相对灵活。内地要求与香港类似。",
 };
 
 /**

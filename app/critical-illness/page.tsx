@@ -26,6 +26,7 @@ import {
 
 // 保司颜色配置（使用品牌色）
 const INSURER_COLORS: Record<InsurerId, { bg: string; text: string; border: string; hex: string }> = {
+  mainland: { bg: "bg-red-500/10", text: "text-red-500", border: "border-red-500/30", hex: "#DE2910" },
   aia: { bg: "bg-red-500/10", text: "text-red-500", border: "border-red-500/30", hex: "#cc1344" },
   prudential: { bg: "bg-red-500/10", text: "text-red-500", border: "border-red-500/30", hex: "#e61b2d" },
   manulife: { bg: "bg-green-500/10", text: "text-green-500", border: "border-green-500/30", hex: "#2e8b57" },
