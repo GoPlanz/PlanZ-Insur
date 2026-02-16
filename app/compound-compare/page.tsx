@@ -572,23 +572,25 @@ export default function CompoundComparePage() {
   return (
     <div className="min-h-screen bg-background">
       {/* 桌面端：左右分栏 */}
-      <div className="hidden lg:flex min-h-screen">
-        {/* 左侧：输入面板 */}
-        <div className="w-[400px] bg-muted/30 flex flex-col">
-          <InputPanel
-            principal={principal} setPrincipal={setPrincipal}
-            simpleRate={simpleRate} setSimpleRate={setSimpleRate}
-            compoundRate={compoundRate} setCompoundRate={setCompoundRate}
-            years={years} setYears={setYears}
-            isUsingSuggestedRate={isUsingSuggestedRate} setIsUsingSuggestedRate={setIsUsingSuggestedRate}
-            hasInteracted={hasInteracted} setHasInteracted={setHasInteracted}
-            multiplier={multiplier}
-          />
+      <div className="hidden lg:flex">
+        {/* 左侧：输入面板 - 固定定位 */}
+        <div className="w-[400px] sticky top-0 h-screen overflow-hidden bg-muted/30 flex flex-col">
+          <div className="p-4 h-full overflow-hidden">
+            <InputPanel
+              principal={principal} setPrincipal={setPrincipal}
+              simpleRate={simpleRate} setSimpleRate={setSimpleRate}
+              compoundRate={compoundRate} setCompoundRate={setCompoundRate}
+              years={years} setYears={setYears}
+              isUsingSuggestedRate={isUsingSuggestedRate} setIsUsingSuggestedRate={setIsUsingSuggestedRate}
+              hasInteracted={hasInteracted} setHasInteracted={setHasInteracted}
+              multiplier={multiplier}
+            />
+          </div>
         </div>
 
-        {/* 右侧：结果展示 */}
+        {/* 右侧：结果展示 - 可滚动 */}
         <div className="flex-1 overflow-y-auto">
-          <div className="max-w-4xl mx-auto p-8 space-y-8">
+          <div className="max-w-4xl mx-auto p-8 pt-4 space-y-8">
             {/* 结果摘要卡片 */}
             <Card className="border-green-500/30 bg-gradient-to-br from-green-500/10 to-green-500/5">
               <CardContent className="py-6">
