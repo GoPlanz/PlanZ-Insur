@@ -1,13 +1,12 @@
 "use client";
 
-import { useState, useCallback, useEffect, useMemo } from "react";
-import { TrendingUp, Clock, Info, ChevronRight, Sparkles, RotateCcw } from "lucide-react";
+import { useState, useEffect, useMemo } from "react";
+import { TrendingUp, Clock, Info, ChevronRight, Sparkles, RotateCcw, Menu, X } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
 import { Badge } from "@/components/ui/badge";
-import { CountUp } from "@/components/ui/count-up";
 import {
   LineChart,
   Line,
@@ -23,7 +22,6 @@ import {
   formatCurrency,
   formatRate,
   getDifferenceDescription,
-  type CompoundInput,
 } from "@/src/lib/calculations/compound";
 
 // IRR 市场数据（根据年限自动建议）
@@ -62,19 +60,6 @@ const IRR_BY_YEARS: Record<number, number> = {
   30: 6.50,
 };
 
-// 用于UI显示的简化IRR数据
-const IRR_BY_YEARS_SIMPLE: Record<number, number> = {
-  5: -5.6,
-  10: 3.65,
-  15: 5.05,
-  20: 5.95,
-  25: 6.35,
-  30: 6.5,
-  40: 6.5,
-  50: 6.5,
-  60: 6.5,
-};
-
 // 获取建议的IRR
 function getSuggestedIRR(years: number): number {
   const exactMatch = IRR_BY_YEARS[years];
@@ -93,24 +78,22 @@ function calculateActualCashValue(principal: number, year: number, irrByYears: R
   if (year <= 0) return 0;
 
   // 获取该年份的IRR
-  const irr = irrByYears[Math.min(year, 30)] / 100; // 最多30年数据，之后用30年的IRR
+  const irr = irrByYears[Math.min(year, 30)] / 100;
 
-  // 如果IRR为负或极小，使用简化的现金价值模型
+  // 如果IRR为负，使用简化的现金价值模型
   if (irr < 0) {
-    // 前6年现金价值很低，逐步恢复
     const recoveryFactors: Record<number, number> = {
-      1: 0.02,   // 第1年：2%
-      2: 0.55,   // 第2年：55%
-      3: 0.78,   // 第3年：78%
-      4: 0.88,   // 第4年：88%
-      5: 0.94,   // 第5年：94%
-      6: 0.99,   // 第6年：99%
+      1: 0.02,
+      2: 0.55,
+      3: 0.78,
+      4: 0.88,
+      5: 0.94,
+      6: 0.99,
     };
     return principal * (recoveryFactors[year] || 1);
   }
 
-  // 对于正IRR年份，使用复利公式：现金价值 = 本金 × (1 + IRR)^年数
-  // 但需要与前面的年份平滑衔接
+  // 对于正IRR年份，使用复利公式
   return principal * Math.pow(1 + irr, year);
 }
 
@@ -127,9 +110,8 @@ function CompoundChart({
   const chartData = useMemo(() => {
     const principal = result.principal;
 
-    const data = result.bankData.map((bank, i) => {
+    const data = result.bankData.map((bank) => {
       const year = bank.year;
-      // 使用真实IRR数据计算现金价值
       const cashValue = calculateActualCashValue(principal, year, IRR_BY_YEARS);
 
       return {
@@ -144,12 +126,10 @@ function CompoundChart({
     if (delayedResult) {
       return data.map((d) => {
         let delayedAmount = 0;
-        const startYear = 5; // 晚5年开始投入
+        const startYear = 5;
 
-        // 对于延迟投入，从第5年开始计算
         if (d.year >= startYear) {
-          const yearSinceStart = d.year - startYear + 1; // 第5年开始是第1年
-          // 使用真实IRR数据计算现金价值
+          const yearSinceStart = d.year - startYear + 1;
           delayedAmount = calculateActualCashValue(principal, yearSinceStart, IRR_BY_YEARS);
         }
 
@@ -188,7 +168,7 @@ function CompoundChart({
   return (
     <div className="space-y-6">
       {/* 曲线图 */}
-      <div className="h-[350px] w-full">
+      <div className="h-[300px] w-full">
         <ResponsiveContainer width="100%" height="100%">
           <LineChart data={chartData} margin={{ top: 20, right: 30, left: 20, bottom: 20 }}>
             <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" opacity={0.3} />
@@ -236,18 +216,16 @@ function CompoundChart({
                 dot={false}
               />
             )}
-            {/* 锁定期标记 - 7年锁定期结束 */}
+            {/* 锁定期标记 */}
             {result.years >= 7 && (
-              <>
-                <ReferenceDot
-                  x={7}
-                  y={chartData.find((d: any) => d.year === 7)?.复利 || result.principal}
-                  r={5}
-                  fill="#ef4444"
-                  stroke="white"
-                  strokeWidth={2}
-                />
-              </>
+              <ReferenceDot
+                x={7}
+                y={chartData.find((d: any) => d.year === 7)?.复利 || result.principal}
+                r={5}
+                fill="#ef4444"
+                stroke="white"
+                strokeWidth={2}
+              />
             )}
             <ReferenceDot
               x={result.years}
@@ -261,38 +239,38 @@ function CompoundChart({
       </div>
 
       {/* 图例 */}
-      <div className="flex flex-wrap justify-center gap-6 text-sm">
+      <div className="flex flex-wrap justify-center gap-4 text-xs">
         <div className="flex items-center gap-2">
-          <div className="w-4 h-1 bg-blue-400 rounded" />
+          <div className="w-3 h-1 bg-blue-400 rounded" />
           <span>单利</span>
         </div>
         <div className="flex items-center gap-2">
-          <div className="w-4 h-1 bg-green-500 rounded" />
+          <div className="w-3 h-1 bg-green-500 rounded" />
           <span>复利</span>
         </div>
         {delayedResult && (
           <div className="flex items-center gap-2">
-            <div className="w-4 h-1 rounded" style={{ background: "repeating-linear-gradient(90deg, #F97316, #F97316 5px, transparent 5px, transparent 10px)" }} />
+            <div className="w-3 h-1 rounded" style={{ background: "repeating-linear-gradient(90deg, #F97316, #F97316 3px, transparent 3px, transparent 6px)" }} />
             <span>复利（晚5年投入）</span>
           </div>
         )}
         {result.years >= 7 && (
           <div className="flex items-center gap-2">
-            <div className="w-3 h-3 rounded-full bg-red-500 border-2 border-white" />
-            <span className="text-xs text-muted-foreground">7年锁定期结束</span>
+            <div className="w-2 h-2 rounded-full bg-red-500 border border-white" />
+            <span className="text-muted-foreground">7年锁定期结束</span>
           </div>
         )}
       </div>
 
       {/* 年度增长数据表 */}
       <div className="rounded-lg border border-border overflow-x-auto">
-        <table className="w-full text-xs sm:text-sm min-w-[500px]">
+        <table className="w-full text-xs min-w-[400px]">
           <thead className="bg-muted/50">
             <tr>
-              <th className="px-2 sm:px-4 py-2 text-left">年份</th>
-              <th className="px-2 sm:px-4 py-2 text-right">单利</th>
-              <th className="px-2 sm:px-4 py-2 text-right">复利现金价值</th>
-              <th className="px-2 sm:px-4 py-2 text-right">差额</th>
+              <th className="px-2 py-2 text-left">年份</th>
+              <th className="px-2 py-2 text-right">单利</th>
+              <th className="px-2 py-2 text-right">复利现金价值</th>
+              <th className="px-2 py-2 text-right">差额</th>
             </tr>
           </thead>
           <tbody>
@@ -301,31 +279,28 @@ function CompoundChart({
               .map((bank) => {
                 const year = bank.year;
                 const principal = result.principal;
-
-                // 使用真实IRR数据计算现金价值
                 const cashValue = calculateActualCashValue(principal, year, IRR_BY_YEARS);
-
                 const difference = cashValue - bank.bankAmount;
                 const diffPercent = bank.bankAmount > 0
                   ? ((difference / bank.bankAmount) * 100).toFixed(0)
                   : "0";
-                const isInLockup = year <= 7; // 7年锁定期
+                const isInLockup = year <= 7;
 
                 return (
                   <tr key={bank.year} className="border-t border-border">
-                    <td className="px-2 sm:px-4 py-2">
+                    <td className="px-2 py-2">
                       {bank.year}年
                       {isInLockup && (
                         <span className="ml-1 text-xs text-red-500">(锁定期)</span>
                       )}
                     </td>
-                    <td className="px-2 sm:px-4 py-2 text-right font-mono text-blue-400">
+                    <td className="px-2 py-2 text-right font-mono text-blue-400">
                       {formatCurrency(bank.bankAmount)}
                     </td>
-                    <td className="px-2 sm:px-4 py-2 text-right font-mono text-green-500 font-bold">
+                    <td className="px-2 py-2 text-right font-mono text-green-500 font-bold">
                       {formatCurrency(cashValue)}
                     </td>
-                    <td className="px-2 sm:px-4 py-2 text-right font-mono text-yellow-500">
+                    <td className="px-2 py-2 text-right font-mono text-yellow-500">
                       {difference >= 0 ? "+" : ""}{formatCurrency(difference)}
                       <span className="text-yellow-500/70 text-xs ml-1">({diffPercent}%)</span>
                     </td>
@@ -339,16 +314,207 @@ function CompoundChart({
   );
 }
 
+// 左侧输入面板组件
+function InputPanel({
+  principal, setPrincipal,
+  simpleRate, setSimpleRate,
+  compoundRate, setCompoundRate,
+  years, setYears,
+  isUsingSuggestedRate, setIsUsingSuggestedRate,
+  hasInteracted, setHasInteracted,
+  multiplier,
+}: {
+  principal: number; setPrincipal: (v: number) => void;
+  simpleRate: number; setSimpleRate: (v: number) => void;
+  compoundRate: number; setCompoundRate: (v: number) => void;
+  years: number; setYears: (v: number) => void;
+  isUsingSuggestedRate: boolean; setIsUsingSuggestedRate: (v: boolean) => void;
+  hasInteracted: boolean; setHasInteracted: (v: boolean) => void;
+  multiplier: string;
+}) {
+  const handleInteract = () => {
+    if (!hasInteracted) setHasInteracted(true);
+  };
+
+  const handleRestoreSuggestedRate = () => {
+    setIsUsingSuggestedRate(true);
+    setCompoundRate(getSuggestedIRR(years));
+  };
+
+  const yearShortcuts = [10, 20, 30, 40, 50, 60];
+
+  return (
+    <div className="h-full flex flex-col">
+      {/* 核心结论 - 顶部 */}
+      <div className="p-6 border-b border-border bg-gradient-to-br from-primary/5 to-primary/10">
+        <Badge variant="outline" className="mb-3">
+          复利对比工具
+        </Badge>
+        <h1 className="text-2xl font-bold mb-2">
+          {years}年后
+        </h1>
+        <p className="text-3xl font-bold text-primary">
+          复利是单利的 {multiplier} 倍
+        </p>
+        <p className="text-sm text-muted-foreground mt-2">
+          时间越久，差距越大
+        </p>
+      </div>
+
+      {/* 输入区 */}
+      <div className="flex-1 overflow-y-auto p-6 space-y-8">
+        {/* 本金输入 */}
+        <div className="space-y-4">
+          <div className="flex items-center justify-between">
+            <Label htmlFor="principal" className="font-medium">投入本金</Label>
+            <span className="text-xl font-bold text-primary">
+              {formatCurrency(principal)}
+            </span>
+          </div>
+          <Slider
+            id="principal"
+            value={[principal]}
+            onValueChange={([v]) => {
+              setPrincipal(v);
+              handleInteract();
+            }}
+            min={100000}
+            max={5000000}
+            step={100000}
+            className="w-full"
+          />
+          <div className="flex justify-between text-xs text-muted-foreground">
+            <span>10万</span>
+            <span>500万</span>
+          </div>
+        </div>
+
+        {/* 单利利率 */}
+        <div className="space-y-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <Label htmlFor="simpleRate" className="font-medium">单利投资</Label>
+              <p className="text-xs text-muted-foreground">定存、国债</p>
+            </div>
+            <span className="text-lg font-bold text-blue-400">{formatRate(simpleRate)}</span>
+          </div>
+          <Slider
+            id="simpleRate"
+            value={[simpleRate]}
+            onValueChange={([v]) => {
+              setSimpleRate(v);
+              handleInteract();
+            }}
+            min={0.5}
+            max={5}
+            step={0.1}
+            className="w-full"
+          />
+        </div>
+
+        {/* 复利利率 */}
+        <div className="space-y-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <Label htmlFor="compoundRate" className="font-medium">复利投资</Label>
+              <p className="text-xs text-muted-foreground">分红保单</p>
+              {compoundRate > 6.5 && (
+                <span className="text-xs text-orange-500">超演示限高</span>
+              )}
+            </div>
+            <div className="text-right">
+              <span className="text-lg font-bold text-green-500">{formatRate(compoundRate)}</span>
+              {isUsingSuggestedRate && (
+                <p className="text-xs text-muted-foreground">市场参考</p>
+              )}
+            </div>
+          </div>
+          <Slider
+            id="compoundRate"
+            value={[compoundRate]}
+            onValueChange={([v]) => {
+              setCompoundRate(v);
+              setIsUsingSuggestedRate(false);
+              handleInteract();
+            }}
+            min={0.5}
+            max={8}
+            step={0.1}
+            className="w-full"
+          />
+          {!isUsingSuggestedRate && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={handleRestoreSuggestedRate}
+              className="text-xs h-7 px-2"
+            >
+              <RotateCcw className="h-3 w-3 mr-1" />
+              恢复建议值
+            </Button>
+          )}
+        </div>
+
+        {/* 投资年限 */}
+        <div className="space-y-4">
+          <div className="flex items-center justify-between">
+            <Label className="font-medium">投资年限</Label>
+            <div className="flex items-center gap-2">
+              <Clock className="h-4 w-4 text-muted-foreground" />
+              <span className="text-lg font-bold">{years} 年</span>
+            </div>
+          </div>
+
+          {/* 快捷年限按钮 */}
+          <div className="flex gap-1.5 flex-wrap">
+            {yearShortcuts.map((y) => (
+              <Button
+                key={y}
+                variant={years === y ? "default" : "outline"}
+                size="sm"
+                onClick={() => {
+                  setYears(y);
+                  handleInteract();
+                }}
+                className="flex-1 min-w-[50px]"
+              >
+                {y}
+              </Button>
+            ))}
+          </div>
+
+          <Slider
+            value={[years]}
+            onValueChange={([v]) => {
+              setYears(v);
+              handleInteract();
+            }}
+            min={10}
+            max={60}
+            step={1}
+            className="w-full"
+          />
+        </div>
+
+        {!hasInteracted && (
+          <p className="text-xs text-center text-muted-foreground bg-muted/50 py-2 rounded">
+            💡 示例数据，调整参数查看您的实际情况
+          </p>
+        )}
+      </div>
+    </div>
+  );
+}
+
 export default function CompoundComparePage() {
-  // 默认示例数据
   const [principal, setPrincipal] = useState<number>(1000000);
   const [simpleRate, setSimpleRate] = useState<number>(1.5);
   const [compoundRate, setCompoundRate] = useState<number>(6.5);
   const [years, setYears] = useState<number>(30);
   const [isUsingSuggestedRate, setIsUsingSuggestedRate] = useState(true);
   const [hasInteracted, setHasInteracted] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
-  // 计算理论结果
   const result = calculateCompound({
     principal,
     bankRate: simpleRate,
@@ -356,12 +522,10 @@ export default function CompoundComparePage() {
     years,
   });
 
-  // 计算现金价值（基于真实IRR数据）
   const cashValue = useMemo(() => {
     return calculateActualCashValue(principal, years, IRR_BY_YEARS);
   }, [principal, years]);
 
-  // 延迟5年的对比结果（用于对比卡片）
   const delayedResultForCard = useMemo(() => {
     if (years <= 10) return null;
     const delayedYears = years - 5;
@@ -371,19 +535,16 @@ export default function CompoundComparePage() {
     };
   }, [principal, years]);
 
-  // 延迟5年的对比结果（用于图表，保持相同年限长度）
   const delayedResultForChart = useMemo(() => {
     if (years <= 10) return null;
-    // 构造包含前5年为0的数据数组
     const paddedData = Array(5).fill(null).map((_, i) => ({
       year: i + 1,
       bankAmount: 0,
       insuranceAmount: 0,
       difference: 0,
     }));
-    // 从第6年开始才有数据
     const actualData = result.bankData.slice(0, years - 5).map((bank, i) => {
-      const yearSinceStart = i + 1; // 从第1年开始计算
+      const yearSinceStart = i + 1;
       const cashValue = calculateActualCashValue(principal, yearSinceStart, IRR_BY_YEARS);
       return {
         year: bank.year + 5,
@@ -397,7 +558,6 @@ export default function CompoundComparePage() {
     };
   }, [principal, years, result.bankData]);
 
-  // IRR自动建议
   useEffect(() => {
     if (isUsingSuggestedRate) {
       const suggested = getSuggestedIRR(years);
@@ -405,382 +565,310 @@ export default function CompoundComparePage() {
     }
   }, [years, isUsingSuggestedRate]);
 
-  // 处理用户交互
-  const handleInteract = () => {
-    if (!hasInteracted) {
-      setHasInteracted(true);
-    }
-  };
-
-  // 快捷年限按钮
-  const yearShortcuts = [10, 20, 30, 40, 50, 60];
-
-  // 恢复建议利率
-  const handleRestoreSuggestedRate = () => {
-    setIsUsingSuggestedRate(true);
-    setCompoundRate(getSuggestedIRR(years));
-  };
-
-  // 计算倍数（使用真实现金价值）
   const multiplier = result.bankFinalAmount > 0
     ? (cashValue / result.bankFinalAmount).toFixed(1)
     : "1.0";
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Hero Section */}
-      <section className="relative py-16 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-4xl mx-auto text-center space-y-6">
-          <Badge variant="outline" className="mb-4">
-            阶段一工具
-          </Badge>
-          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight">
-            {years}年，复利是单利的 {multiplier} 倍
-          </h1>
-          <p className="text-lg sm:text-xl text-muted-foreground max-w-2xl mx-auto">
-            时间越久，差距越大 • 基于香港分红险演示数据
-          </p>
+      {/* 桌面端：左右分栏 */}
+      <div className="hidden lg:flex min-h-screen">
+        {/* 左侧：输入面板 */}
+        <div className="w-[400px] border-r border-border bg-card flex flex-col">
+          <InputPanel
+            principal={principal} setPrincipal={setPrincipal}
+            simpleRate={simpleRate} setSimpleRate={setSimpleRate}
+            compoundRate={compoundRate} setCompoundRate={setCompoundRate}
+            years={years} setYears={setYears}
+            isUsingSuggestedRate={isUsingSuggestedRate} setIsUsingSuggestedRate={setIsUsingSuggestedRate}
+            hasInteracted={hasInteracted} setHasInteracted={setHasInteracted}
+            multiplier={multiplier}
+          />
         </div>
-      </section>
 
-      {/* Input Section */}
-      <section className="py-8 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-2xl mx-auto">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Sparkles className="h-5 w-5 text-primary" />
-                设置对比参数
-              </CardTitle>
-              <CardDescription>
-                调整本金、利率和年限，看看单利与复利的差距
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-8">
-              {/* 本金输入 */}
-              <div className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <Label htmlFor="principal" className="font-medium">投入本金</Label>
-                  <span className="text-2xl font-bold text-primary">
-                    {formatCurrency(principal)}
-                  </span>
+        {/* 右侧：结果展示 */}
+        <div className="flex-1 overflow-y-auto">
+          <div className="max-w-4xl mx-auto p-8 space-y-8">
+            {/* 结果摘要卡片 */}
+            <Card className="border-green-500/30 bg-gradient-to-br from-green-500/10 to-green-500/5">
+              <CardContent className="py-6">
+                <div className="grid grid-cols-3 gap-4">
+                  <div className="text-center">
+                    <div className="text-sm text-muted-foreground mb-1">单利</div>
+                    <div className="text-xl font-bold text-blue-400">
+                      {formatCurrency(result.bankFinalAmount)}
+                    </div>
+                    <div className="text-xs text-muted-foreground">{formatRate(simpleRate)}/年</div>
+                  </div>
+                  <div className="text-center border-x border-border">
+                    <div className="text-sm text-muted-foreground mb-1">
+                      复利现金价值
+                      {years <= 7 && <span className="text-red-500 ml-1 text-xs">(锁定期)</span>}
+                    </div>
+                    <div className="text-xl font-bold text-green-500">
+                      {formatCurrency(cashValue)}
+                    </div>
+                    <div className="text-xs text-muted-foreground">{formatRate(compoundRate)}/年</div>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-sm text-muted-foreground mb-1">差距</div>
+                    <div className="text-xl font-bold text-yellow-500">
+                      {cashValue - result.bankFinalAmount >= 0 ? "+" : ""}{formatCurrency(cashValue - result.bankFinalAmount)}
+                    </div>
+                    <div className="text-xs text-muted-foreground">
+                      {Math.abs(((cashValue - result.bankFinalAmount) / result.bankFinalAmount) * 100).toFixed(0)}%
+                    </div>
+                  </div>
                 </div>
-                <Slider
-                  id="principal"
-                  value={[principal]}
-                  onValueChange={([v]) => {
-                    setPrincipal(v);
-                    handleInteract();
-                  }}
-                  min={100000}
-                  max={5000000}
-                  step={100000}
-                  className="w-full"
-                />
-                <div className="flex justify-between text-xs text-muted-foreground">
-                  <span>10万</span>
-                  <span>500万</span>
-                </div>
+                <p className="text-center text-muted-foreground mt-4 text-sm">
+                  {getDifferenceDescription(result.difference)}
+                </p>
+              </CardContent>
+            </Card>
+
+            {/* 曲线图 */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-lg">复利的时间威力</CardTitle>
+                <CardDescription>
+                  观察单利线性增长与复利指数增长的差距如何随时间扩大
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <CompoundChart result={result} delayedResult={delayedResultForChart} cashValue={cashValue} />
+              </CardContent>
+            </Card>
+
+            {/* 延迟5年对比 */}
+            {years > 10 && delayedResultForCard && (
+              <Card className="border-orange-500/30 bg-gradient-to-br from-orange-500/10 to-orange-500/5">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2 text-base">
+                    <Clock className="h-4 w-4 text-orange-500" />
+                    还在犹豫？看看晚5年开始会怎样
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="bg-card/50 rounded-lg p-4 text-center">
+                      <div className="text-sm text-muted-foreground mb-1">现在开始</div>
+                      <div className="text-lg font-bold text-green-500">{formatCurrency(cashValue)}</div>
+                    </div>
+                    <div className="bg-card/50 rounded-lg p-4 text-center">
+                      <div className="text-sm text-muted-foreground mb-1">5年后开始</div>
+                      <div className="text-lg font-bold text-orange-500">{formatCurrency(delayedResultForCard.insuranceFinalAmount)}</div>
+                    </div>
+                  </div>
+                  <p className="text-sm text-muted-foreground text-center">
+                    晚5年，少赚 <span className="text-orange-500 font-bold">{formatCurrency(cashValue - delayedResultForCard.insuranceFinalAmount)}</span>
+                  </p>
+                </CardContent>
+              </Card>
+            )}
+
+            {/* CTA */}
+            <div className="text-center space-y-4 py-4">
+              <p className="text-muted-foreground text-sm">想了解适合您的复利投资方案？</p>
+              <Button size="lg" className="px-8">
+                预约免费咨询
+                <ChevronRight className="ml-2 h-4 w-4" />
+              </Button>
+            </div>
+
+            {/* FAQ */}
+            <div className="space-y-4 pt-8 border-t border-border">
+              <h2 className="text-lg font-semibold text-center">常见问题</h2>
+              <Card>
+                <CardContent className="py-4">
+                  <h3 className="font-medium mb-2 flex items-center gap-2 text-sm">
+                    <Info className="h-4 w-4 text-primary" />
+                    什么是单利和复利？
+                  </h3>
+                  <p className="text-muted-foreground text-xs">
+                    单利只按本金计算利息（如银行定存）。复利是利滚利（如分红保单），时间越长优势越明显。
+                  </p>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardContent className="py-4">
+                  <h3 className="font-medium mb-2 flex items-center gap-2 text-sm">
+                    <Info className="h-4 w-4 text-primary" />
+                    复利投资的收益确定吗？
+                  </h3>
+                  <p className="text-muted-foreground text-xs">
+                    香港储蓄分红险由保证现金价值和非保证分红组成。主流保司分红实现率稳定在95%-105%之间。
+                  </p>
+                </CardContent>
+              </Card>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* 移动端：垂直布局 */}
+      <div className="lg:hidden">
+        {/* 顶部栏 */}
+        <div className="sticky top-0 z-10 bg-background border-b border-border px-4 py-3 flex items-center justify-between">
+          <div>
+            <h1 className="font-bold">复利对比工具</h1>
+            <p className="text-sm text-primary">{years}年后，复利是单利的 {multiplier} 倍</p>
+          </div>
+          <Button
+            variant="outline"
+            size="icon"
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+          >
+            {mobileMenuOpen ? <X className="h-4 w-4" /> : <Menu className="h-4 w-4" />}
+          </Button>
+        </div>
+
+        {/* 输入面板 - 可折叠 */}
+        {mobileMenuOpen && (
+          <div className="border-b border-border bg-card p-4 space-y-6">
+            {/* 本金 */}
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <Label className="text-sm">投入本金</Label>
+                <span className="font-bold text-primary">{formatCurrency(principal)}</span>
               </div>
+              <Slider
+                value={[principal]}
+                onValueChange={([v]) => setPrincipal(v)}
+                min={100000}
+                max={5000000}
+                step={100000}
+              />
+            </div>
 
-              {/* 单利利率 */}
-              <div className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <Label htmlFor="simpleRate" className="font-medium">
-                      单利投资（如：定存、国债）
-                    </Label>
-                    <p className="text-xs text-muted-foreground">利息不产生新利息</p>
-                  </div>
-                  <span className="text-xl font-bold text-blue-400">{formatRate(simpleRate)}</span>
-                </div>
-                <Slider
-                  id="simpleRate"
-                  value={[simpleRate]}
-                  onValueChange={([v]) => {
-                    setSimpleRate(v);
-                    handleInteract();
-                  }}
-                  min={0.5}
-                  max={5}
-                  step={0.1}
-                  className="w-full"
-                />
+            {/* 单利 */}
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <Label className="text-sm">单利 {formatRate(simpleRate)}</Label>
               </div>
+              <Slider
+                value={[simpleRate]}
+                onValueChange={([v]) => setSimpleRate(v)}
+                min={0.5}
+                max={5}
+                step={0.1}
+              />
+            </div>
 
-              {/* 复利利率 */}
-              <div className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <Label htmlFor="compoundRate" className="font-medium">
-                      复利投资（如：分红保单、再投资）
-                    </Label>
-                    <p className="text-xs text-muted-foreground">
-                      利滚利，时间的朋友
-                      {compoundRate > 6.5 && (
-                        <span className="text-orange-500 ml-1">• 高于港险演示限高6.5%</span>
-                      )}
-                    </p>
-                  </div>
-                  <div className="text-right">
-                    <span className="text-xl font-bold text-green-500">{formatRate(compoundRate)}</span>
-                    {isUsingSuggestedRate && (
-                      <p className="text-xs text-muted-foreground">市场参考值</p>
-                    )}
-                  </div>
-                </div>
-                <Slider
-                  id="compoundRate"
-                  value={[compoundRate]}
-                  onValueChange={([v]) => {
-                    setCompoundRate(v);
-                    setIsUsingSuggestedRate(false);
-                    handleInteract();
-                  }}
-                  min={0.5}
-                  max={8}
-                  step={0.1}
-                  className="w-full"
-                />
+            {/* 复利 */}
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <Label className="text-sm">复利 {formatRate(compoundRate)}</Label>
                 {!isUsingSuggestedRate && (
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={handleRestoreSuggestedRate}
-                    className="text-xs h-7 px-2"
-                  >
-                    <RotateCcw className="h-3 w-3 mr-1" />
-                    恢复建议值 ({formatRate(getSuggestedIRR(years))})
+                  <Button variant="ghost" size="sm" onClick={() => {
+                    setIsUsingSuggestedRate(true);
+                    setCompoundRate(getSuggestedIRR(years));
+                  }} className="h-6 text-xs">
+                    <RotateCcw className="h-3 w-3 mr-1" />恢复
                   </Button>
                 )}
               </div>
+              <Slider
+                value={[compoundRate]}
+                onValueChange={([v]) => {
+                  setCompoundRate(v);
+                  setIsUsingSuggestedRate(false);
+                }}
+                min={0.5}
+                max={8}
+                step={0.1}
+              />
+            </div>
 
-              {/* 投资年限 - 滑块+快捷标签 */}
-              <div className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <Label className="font-medium">投资年限</Label>
-                  <div className="flex items-center gap-2">
-                    <Clock className="h-4 w-4 text-muted-foreground" />
-                    <span className="text-xl font-bold">{years} 年</span>
-                  </div>
-                </div>
-
-                {/* 快捷年限按钮 */}
-                <div className="flex gap-2">
-                  {yearShortcuts.map((y) => (
-                    <Button
-                      key={y}
-                      variant={years === y ? "default" : "outline"}
-                      size="sm"
-                      onClick={() => {
-                        setYears(y);
-                        handleInteract();
-                      }}
-                      className="flex-1"
-                    >
-                      {y}年
-                    </Button>
-                  ))}
-                </div>
-
-                {/* 滑块微调 */}
-                <Slider
-                  value={[years]}
-                  onValueChange={([v]) => {
-                    setYears(v);
-                    handleInteract();
-                  }}
-                  min={10}
-                  max={60}
-                  step={1}
-                  className="w-full"
-                />
-                <div className="flex justify-between text-xs text-muted-foreground">
-                  <span>10年</span>
-                  <span>60年</span>
-                </div>
+            {/* 年限 */}
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <Label className="text-sm">投资年限</Label>
+                <span className="font-bold">{years} 年</span>
               </div>
+              <div className="flex gap-1">
+                {[10, 20, 30, 40, 50, 60].map((y) => (
+                  <Button
+                    key={y}
+                    variant={years === y ? "default" : "outline"}
+                    size="sm"
+                    onClick={() => setYears(y)}
+                    className="flex-1"
+                  >
+                    {y}
+                  </Button>
+                ))}
+              </div>
+              <Slider
+                value={[years]}
+                onValueChange={([v]) => setYears(v)}
+                min={10}
+                max={60}
+                step={1}
+              />
+            </div>
+          </div>
+        )}
 
-              {!hasInteracted && (
-                <p className="text-xs text-center text-muted-foreground bg-muted/50 py-2 rounded">
-                  💡 示例数据，调整上方参数查看您的实际情况
-                </p>
-              )}
-            </CardContent>
-          </Card>
-        </div>
-      </section>
-
-      {/* Results Section - 默认展示 */}
-      <section className="py-8 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-4xl mx-auto space-y-8">
-          {/* Aha Moment */}
+        {/* 结果区 */}
+        <div className="p-4 space-y-4">
+          {/* 结果摘要 */}
           <Card className="border-green-500/30 bg-gradient-to-br from-green-500/10 to-green-500/5">
-            <CardContent className="py-8 text-center space-y-4">
-              <div className="flex items-center justify-center gap-2 text-green-500">
-                <TrendingUp className="h-6 w-6" />
-                <h2 className="text-xl sm:text-2xl font-bold">
-                  {years}年后，复利是单利的 {multiplier} 倍
-                </h2>
-              </div>
-              <p className="text-2xl sm:text-3xl font-bold">
-                {formatCurrency(principal)} 本金
-              </p>
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-4">
-                <div className="bg-card/50 rounded-lg p-4">
-                  <div className="text-sm text-muted-foreground mb-1">单利投资</div>
-                  <div className="text-2xl font-bold text-blue-400">
-                    {formatCurrency(result.bankFinalAmount)}
-                  </div>
-                  <div className="text-xs text-muted-foreground">
-                    年化 {formatRate(simpleRate)}
-                  </div>
+            <CardContent className="py-4">
+              <div className="grid grid-cols-3 gap-2 text-center">
+                <div>
+                  <div className="text-xs text-muted-foreground">单利</div>
+                  <div className="text-sm font-bold text-blue-400">{formatCurrency(result.bankFinalAmount)}</div>
                 </div>
-                <div className="bg-card/50 rounded-lg p-4">
-                  <div className="text-sm text-muted-foreground mb-1">
-                    复利现金价值
-                    {years <= 7 && <span className="text-red-500 ml-1">(锁定期)</span>}
-                  </div>
-                  <div className="text-2xl font-bold text-green-500">
-                    {formatCurrency(cashValue)}
-                  </div>
+                <div className="border-x border-border">
                   <div className="text-xs text-muted-foreground">
-                    年化 {formatRate(compoundRate)}
-                    {years <= 7 && (
-                      <>
-                        <br />
-                        <span className="text-orange-500">💡 前7年为锁定期，现金价值低于本金</span>
-                      </>
-                    )}
+                    复利{years <= 7 && <span className="text-red-500 text-xs">(锁定)</span>}
                   </div>
+                  <div className="text-sm font-bold text-green-500">{formatCurrency(cashValue)}</div>
                 </div>
-                <div className="bg-card/50 rounded-lg p-4 border border-yellow-500/30">
-                  <div className="text-sm text-muted-foreground mb-1">差距</div>
-                  <div className="text-2xl font-bold text-yellow-500">
+                <div>
+                  <div className="text-xs text-muted-foreground">差距</div>
+                  <div className="text-sm font-bold text-yellow-500">
                     {cashValue - result.bankFinalAmount >= 0 ? "+" : ""}{formatCurrency(cashValue - result.bankFinalAmount)}
                   </div>
-                  <div className="text-xs text-muted-foreground">
-                    {cashValue >= result.bankFinalAmount ? "多赚" : "少赚"} {Math.abs(((cashValue - result.bankFinalAmount) / result.bankFinalAmount) * 100).toFixed(0)}%
-                  </div>
                 </div>
               </div>
-              <p className="text-lg text-muted-foreground pt-2">
-                {getDifferenceDescription(result.difference)}
-              </p>
             </CardContent>
           </Card>
 
           {/* 曲线图 */}
           <Card>
-            <CardHeader>
-              <CardTitle>复利的时间威力</CardTitle>
-              <CardDescription>
-                观察单利线性增长与复利指数增长的差距如何随时间扩大
-              </CardDescription>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-base">复利的时间威力</CardTitle>
             </CardHeader>
             <CardContent>
               <CompoundChart result={result} delayedResult={delayedResultForChart} cashValue={cashValue} />
             </CardContent>
           </Card>
 
-          {/* 延迟5年对比 */}
+          {/* 延迟对比 */}
           {years > 10 && delayedResultForCard && (
             <Card className="border-orange-500/30 bg-gradient-to-br from-orange-500/10 to-orange-500/5">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2 text-lg">
-                  <Clock className="h-5 w-5 text-orange-500" />
-                  还在犹豫？看看晚5年开始会怎样
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div className="bg-card/50 rounded-lg p-4">
-                    <div className="text-sm text-muted-foreground mb-1">现在开始</div>
-                    <div className="text-xl font-bold text-green-500">
-                      {formatCurrency(cashValue)}
-                    </div>
-                    <div className="text-xs text-muted-foreground">{years}年后现金价值</div>
-                  </div>
-                  <div className="bg-card/50 rounded-lg p-4">
-                    <div className="text-sm text-muted-foreground mb-1">5年后开始</div>
-                    <div className="text-xl font-bold text-orange-500">
-                      {formatCurrency(delayedResultForCard.insuranceFinalAmount)}
-                    </div>
-                    <div className="text-xs text-muted-foreground">{years - 5}年后现金价值</div>
-                  </div>
+              <CardContent className="py-4">
+                <div className="flex items-center justify-between text-sm mb-2">
+                  <span>现在开始: <strong className="text-green-500">{formatCurrency(cashValue)}</strong></span>
+                  <span>5年后: <strong className="text-orange-500">{formatCurrency(delayedResultForCard.insuranceFinalAmount)}</strong></span>
                 </div>
-                <p className="text-sm text-muted-foreground text-center">
-                  晚5年开始，最终少赚{" "}
-                  <span className="text-orange-500 font-bold">
-                    {formatCurrency(cashValue - delayedResultForCard.insuranceFinalAmount)}
-                  </span>
-                  {" "}({((cashValue - delayedResultForCard.insuranceFinalAmount) / cashValue * 100).toFixed(1)}%)
+                <p className="text-xs text-center text-muted-foreground">
+                  晚5年少赚 <span className="text-orange-500 font-bold">{formatCurrency(cashValue - delayedResultForCard.insuranceFinalAmount)}</span>
                 </p>
               </CardContent>
             </Card>
           )}
 
-          {/* CTA - 统一咨询入口 */}
-          <div className="text-center space-y-4 py-8">
-            <p className="text-muted-foreground">
-              想了解适合您的复利投资方案？
-            </p>
-            <Button size="lg" className="px-8">
+          {/* CTA */}
+          <div className="text-center py-4">
+            <Button className="w-full">
               预约免费咨询
               <ChevronRight className="ml-2 h-4 w-4" />
             </Button>
-            <p className="text-xs text-muted-foreground">
-              专业顾问将根据您的年龄和预算，定制最优配置方案
-            </p>
           </div>
         </div>
-      </section>
-
-      {/* FAQ Section */}
-      <section className="py-16 px-4 sm:px-6 lg:px-8 border-t border-border">
-        <div className="max-w-3xl mx-auto">
-          <h2 className="text-2xl font-semibold mb-8 text-center">常见问题</h2>
-          <div className="space-y-4">
-            <Card>
-              <CardContent className="py-6">
-                <h3 className="font-medium mb-2 flex items-center gap-2">
-                  <Info className="h-4 w-4 text-primary" />
-                  什么是单利和复利？
-                </h3>
-                <p className="text-muted-foreground text-sm">
-                  单利只按本金计算利息，利息不会产生新的利息（如银行定存、国债）。
-                  复利是利息加入本金再计算利息，实现"利滚利"（如分红保单、基金分红再投资）。
-                  时间越长，复利优势越明显。
-                </p>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardContent className="py-6">
-                <h3 className="font-medium mb-2 flex items-center gap-2">
-                  <Info className="h-4 w-4 text-primary" />
-                  复利投资的收益确定吗？
-                </h3>
-                <p className="text-muted-foreground text-sm">
-                  香港储蓄分红险由保证现金价值和非保证分红组成。保证部分是写入合同、确定给付的；
-                  非保证分红根据保险公司投资表现分配。根据历史数据，主流保司的分红实现率稳定在95%-105%之间。
-                </p>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardContent className="py-6">
-                <h3 className="font-medium mb-2 flex items-center gap-2">
-                  <Info className="h-4 w-4 text-primary" />
-                  什么时候开始最合适？
-                </h3>
-                <p className="text-muted-foreground text-sm">
-                  复利投资越早开始越好，但任何时间开始都比不开始强。
-                  使用我们的生日回溯计算器，看看能否抓住费率上涨前的最后机会。
-                </p>
-              </CardContent>
-            </Card>
-          </div>
-        </div>
-      </section>
+      </div>
     </div>
   );
 }
