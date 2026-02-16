@@ -11,7 +11,6 @@
 | #1458 | 10:59 PM | 🔄 | Delayed result threshold increased from 5 to 10 years | ~189 |
 | #1455 | 10:58 PM | ✅ | Year shortcuts expanded to support longer investment horizons | ~210 |
 | #1453 | 10:57 PM | 🔄 | Data table simplified - merged percentage column | ~168 |
-| #1434 | 10:50 PM | 🔄 | CompoundChart delayedResult type narrowed | ~148 |
 
 ### Feb 16, 2026
 
