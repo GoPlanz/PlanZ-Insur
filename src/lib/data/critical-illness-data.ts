@@ -190,7 +190,7 @@ export const CANCER_DEFINITION_DIFFERENCES = {
 export const HEART_ATTACK_DEFINITION_DIFFERENCES = {
   common: "需符合典型胸痛、心电图改变、心肌酶升高中的若干项。",
   troponinI: {
-    mainland: "> 正常值15倍",
+    mainland: "≥15倍医院参考值上限（以报告为准）",
     aia: "> 0.5 ng/ml",
     prudential: "> 0.5 ng/ml",
     manulife: "> 0.5 ng/ml",
@@ -199,7 +199,7 @@ export const HEART_ATTACK_DEFINITION_DIFFERENCES = {
     sunlife: "> 0.5 ng/ml",
   },
   troponinT: {
-    mainland: "> 正常值15倍（非常严格）",
+    mainland: "≥15倍医院参考值上限（以报告为准）",
     aia: "> 1.0 ng/ml",
     manulife: "> 0.6 ng/ml (中等偏宽)",
     prudential: "> 0.6 ng/ml",
@@ -207,7 +207,7 @@ export const HEART_ATTACK_DEFINITION_DIFFERENCES = {
     yf: "> 1.0 ng/ml",
     sunlife: "> 1.0 ng/ml",
   },
-  notes: "内地2020新规要求肌钙蛋白升高15倍才能赔100%，香港通常只需>0.2-1.0 ng/ml即可。安盛最宽松。",
+  notes: "内地2020新规要求≥15倍医院参考值上限才能赔100%，不同医院检测设备参考值不同。香港通常只需>0.2-1.0 ng/ml即可，安盛最宽松。",
 };
 
 /**
