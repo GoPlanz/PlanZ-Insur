@@ -31,7 +31,7 @@ export const HIGH_INCIDENCE_DISEASES = [
     tier: 1,
     description: "恶性细胞不受控制地生长、扩散并侵入破坏正常组织。包括白血病、淋巴瘤和肉瘤。",
     keyConditions: "必须经病理学检查确诊。一般不包括原位癌及部分早期的前列腺癌、甲状腺癌。",
-    claimsShare: "占所有危疾理赔的60%-80%",
+    claimsShare: "占所有重疾理赔的60%-80%",
   },
   {
     id: "heart-attack",
@@ -40,7 +40,7 @@ export const HIGH_INCIDENCE_DISEASES = [
     tier: 1,
     description: "因血液供应不足导致部分心肌坏死。",
     keyConditions: "通常需要满足典型胸痛病史、心电图改变、心肌酶或肌钙蛋白升高中的若干项。",
-    claimsShare: "三大杀手之一",
+    claimsShare: "三大高发重疾之一",
   },
   {
     id: "stroke",
@@ -49,7 +49,7 @@ export const HIGH_INCIDENCE_DISEASES = [
     tier: 1,
     description: "因脑血管出血、栓塞或梗塞导致的脑组织坏死。",
     keyConditions: "必须导致永久性的神经功能障碍，持续时间通常要求至少4周（香港）或180天（内地）。",
-    claimsShare: "三大杀手之一",
+    claimsShare: "三大高发重疾之一",
   },
   {
     id: "kidney-failure",
@@ -75,7 +75,7 @@ export const HIGH_INCIDENCE_DISEASES = [
     nameEn: "Coronary Artery Bypass Surgery",
     tier: 2,
     description: "为治疗严重的冠心病而进行的开胸手术。",
-    keyConditions: "必须实际实施了开胸手术以进行血管旁路移植。通波仔通常属于早期危疾。",
+    keyConditions: "必须实际实施了开胸手术以进行血管旁路移植。血管成形术（通波仔）通常属于早期/轻症。",
     claimsShare: "前六大重疾之一",
   },
   {
@@ -142,22 +142,22 @@ export const HIGH_INCIDENCE_DISEASES = [
  * 癌症定义差异
  */
 export const CANCER_DEFINITION_DIFFERENCES = {
-  common: "所有保司均排除原位癌、T1N0M0甲状腺癌、T1a/T1b前列腺癌，将它们归类为早期危疾。",
+  common: "所有保司均排除原位癌、T1N0M0甲状腺癌、T1a/T1b前列腺癌，将它们归类为早期重疾。",
   insurerSpecific: {
     aia: {
       prostate: "排除T1a/T1b前列腺癌",
       thyroid: "排除T1N0M0甲状腺癌",
-      carcinomaInSitu: "视为早期危疾，不同器官可赔2次",
+      carcinomaInSitu: "视为早期重疾，不同器官可赔2次",
     },
     prudential: {
       prostate: "排除T1a/T1b前列腺癌",
       thyroid: "排除T1N0M0甲状腺癌",
-      carcinomaInSitu: "视为早期严重病况",
+      carcinomaInSitu: "视为早期/轻症疾病",
     },
     manulife: {
       prostate: "排除T1a/T1b前列腺癌",
       thyroid: "排除T1N0M0甲状腺癌",
-      carcinomaInSitu: "视为早期危疾，不同器官可赔2次",
+      carcinomaInSitu: "视为早期重疾，不同器官可赔2次",
     },
     axa: {
       prostate: "排除T2N0M0或以下且Gleason<7的前列腺癌（门槛更高）",
@@ -172,7 +172,7 @@ export const CANCER_DEFINITION_DIFFERENCES = {
     sunlife: {
       prostate: "排除T1a/T1b前列腺癌",
       thyroid: "排除T1N0M0甲状腺癌",
-      carcinomaInSitu: "视为早期危疾，不同器官可赔2次",
+      carcinomaInSitu: "视为早期重疾，不同器官可赔2次",
     },
   },
   notes: "安盛对严重前列腺癌的排除标准（T2N0M0且Gleason<7）比其他几家更严格。",
@@ -238,12 +238,12 @@ export const DEMENTIA_DEFINITION_DIFFERENCES = {
  */
 export const ICU_COVERAGE_DIFFERENCES = {
   aia: "两级保障：72小时（20%）、120小时+手术+维生支持（100%）",
-  prudential: "未作为独立非危疾类别列出",
+  prudential: "未作为独立非重疾类别列出",
   manulife: "两级保障：连续3天（20%）、连续5天+手术+维生支持（100%）",
   axa: "特定保障：72小时（非严重，20%）、120小时+复杂手术+维生（严重，100%）",
   yf: "120小时+手术+维生支持（作为一种严重疾病赔付）",
   sunlife: "针对复杂手术提供保障，非纯ICU时长",
-  notes: "宏利和友邦提供了分级的ICU保障，即使未确诊特定危疾，只要住进ICU达一定时长即可获赔，保障范围更广。",
+  notes: "宏利和友邦提供了分级的ICU保障，即使未确诊特定重疾，只要住进ICU达一定时长即可获赔，保障范围更广。",
 };
 
 /**
@@ -379,8 +379,8 @@ export const CLAIMS_BY_AGE_GROUP = [
 export const TOP_CLAIMS_DISEASES = {
   critical: [
     { rank: 1, disease: "癌症", share: "60%-80%", notes: "断层第一" },
-    { rank: 2, disease: "心脏病", share: "三大杀手之一", notes: "男性高发" },
-    { rank: 3, disease: "中风", share: "三大杀手之一", notes: "老年高发" },
+    { rank: 2, disease: "心脏病", share: "三大高发重疾之一", notes: "男性高发" },
+    { rank: 3, disease: "中风", share: "三大高发重疾之一", notes: "老年高发" },
   ],
   hospitalization: [
     { rank: 1, disease: "消化系统疾病", notes: "肠胃镜、息肉" },
@@ -398,8 +398,8 @@ export const TOP_CLAIMS_DISEASES = {
  */
 export const CLAIMS_TRENDS = [
   {
-    trend: "危疾年轻化",
-    description: "危疾理赔的中位数年龄在40-50岁之间，对家庭财富积累期打击最大",
+    trend: "重疾年轻化",
+    description: "重疾理赔的中位数年龄在40-50岁之间，对家庭财富积累期打击最大",
   },
   {
     trend: "癌症慢性病化",

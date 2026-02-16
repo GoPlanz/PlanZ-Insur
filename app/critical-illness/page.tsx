@@ -38,8 +38,8 @@ const INSURER_COLORS: Record<InsurerId, { bg: string; text: string; border: stri
 const DISEASE_GROUPS = [
   {
     id: "tier1",
-    name: "三大杀手",
-    description: "占所有危疾理赔90%以上",
+    name: "三大高发重疾",
+    description: "占所有重疾理赔90%以上",
     color: "text-red-500",
     diseases: HIGH_INCIDENCE_DISEASES.filter((d) => d.tier === 1),
   },
@@ -458,7 +458,7 @@ export default function CriticalIllnessPage() {
                 <h3 className="font-medium mb-2">什么是「原位癌」？</h3>
                 <p className="text-muted-foreground text-sm">
                   原位癌是指癌细胞仅出现在上皮层内，未突破基底膜侵犯周围组织的早期癌症。
-                  各保司均将原位癌排除在「严重癌症」之外，作为「早期危疾」进行赔付，通常保额的20-40%。
+                  各保司均将原位癌排除在「严重癌症」之外，作为「早期重疾」进行赔付，通常保额的20-40%。
                 </p>
               </CardContent>
             </Card>
