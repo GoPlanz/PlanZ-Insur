@@ -12,11 +12,11 @@
 | #1455 | 10:58 PM | ✅ | Year shortcuts expanded to support longer investment horizons | ~210 |
 | #1453 | 10:57 PM | 🔄 | Data table simplified - merged percentage column | ~168 |
 | #1434 | 10:50 PM | 🔄 | CompoundChart delayedResult type narrowed | ~148 |
-| #1421 | 10:29 PM | 🔴 | CountUp component props fixed | ~156 |
 
 ### Feb 16, 2026
 
 | ID | Time | T | Title | Read |
 |----|------|---|-------|------|
+| #1523 | 10:44 AM | 🔄 | IRR_BY_YEARS_SIMPLE updated with realistic values | ~229 |
 | #1489 | 10:10 AM | 🟣 | 7-year lockup period visualization added to compound chart | ~237 |
 </claude-mem-context>
