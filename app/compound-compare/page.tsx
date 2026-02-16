@@ -290,15 +290,15 @@ function CompoundChart({
                   <tr key={bank.year} className="border-t border-border">
                     <td className="px-2 py-2">
                       {bank.year}年
-                      {isInLockup && (
-                        <span className="ml-1 text-xs text-red-500">(锁定期内)</span>
-                      )}
                     </td>
                     <td className="px-2 py-2 text-right font-mono text-blue-400">
                       {formatCurrency(bank.bankAmount)}
                     </td>
                     <td className="px-2 py-2 text-right font-mono text-green-500 font-bold">
                       {formatCurrency(cashValue)}
+                      {isInLockup && (
+                        <span className="ml-1 text-xs text-red-500">(锁定期内)</span>
+                      )}
                     </td>
                     <td className="px-2 py-2 text-right font-mono text-yellow-500">
                       {difference >= 0 ? "+" : ""}{formatCurrency(difference)}
