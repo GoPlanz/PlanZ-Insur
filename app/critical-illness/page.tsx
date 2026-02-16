@@ -24,14 +24,14 @@ import {
   type InsurerId,
 } from "@/src/lib/data/critical-illness-data";
 
-// 保司颜色配置
-const INSURER_COLORS: Record<InsurerId, { bg: string; text: string; border: string }> = {
-  aia: { bg: "bg-red-500/10", text: "text-red-500", border: "border-red-500/30" },
-  prudential: { bg: "bg-blue-500/10", text: "text-blue-500", border: "border-blue-500/30" },
-  manulife: { bg: "bg-green-500/10", text: "text-green-500", border: "border-green-500/30" },
-  axa: { bg: "bg-yellow-500/10", text: "text-yellow-500", border: "border-yellow-500/30" },
-  yf: { bg: "bg-purple-500/10", text: "text-purple-500", border: "border-purple-500/30" },
-  sunlife: { bg: "bg-orange-500/10", text: "text-orange-500", border: "border-orange-500/30" },
+// 保司颜色配置（使用品牌色）
+const INSURER_COLORS: Record<InsurerId, { bg: string; text: string; border: string; hex: string }> = {
+  aia: { bg: "bg-red-500/10", text: "text-red-500", border: "border-red-500/30", hex: "#cc1344" },
+  prudential: { bg: "bg-red-500/10", text: "text-red-500", border: "border-red-500/30", hex: "#e61b2d" },
+  manulife: { bg: "bg-green-500/10", text: "text-green-500", border: "border-green-500/30", hex: "#2e8b57" },
+  axa: { bg: "bg-blue-500/10", text: "text-blue-500", border: "border-blue-500/30", hex: "#00008b" },
+  yf: { bg: "bg-blue-500/10", text: "text-blue-500", border: "border-blue-500/30", hex: "#012c67" },
+  sunlife: { bg: "bg-yellow-500/10", text: "text-yellow-500", border: "border-yellow-500/30", hex: "#f5b812" },
 };
 
 // 疾病分组
@@ -100,9 +100,10 @@ function InsurerComparisonCard({
                   const insurer = INSURERS.find((i) => i.id === id)!;
                   const diff = getCancerDifference(id);
                   const colors = INSURER_COLORS[id];
+                  const bgColor = colors.hex + "15"; // 15% opacity
                   return (
-                    <div key={id} className={`p-2 rounded ${colors.bg} ${colors.border} border`}>
-                      <div className={`font-medium ${colors.text}`}>{insurer.name}</div>
+                    <div key={id} className="p-2 rounded border" style={{ backgroundColor: bgColor, borderColor: colors.hex + "30" }}>
+                      <div className="font-medium" style={{ color: colors.hex }}>{insurer.name}</div>
                       <div className="text-muted-foreground mt-1">{diff.carcinomaInSitu}</div>
                     </div>
                   );
@@ -150,7 +151,7 @@ function InsurerComparisonCard({
                       const isLenientT = tT === "> 200 ng/L (即0.2 ng/ml)" || tT === "> 0.6 ng/ml";
                       return (
                         <tr key={id} className="border-t border-border">
-                          <td className={`px-3 py-2 font-medium ${colors.text}`}>{insurer.name}</td>
+                          <td className="px-3 py-2 font-medium" style={{ color: colors.hex }}>{insurer.name}</td>
                           <td className="px-3 py-2 text-right font-mono">{tI}</td>
                           <td className={`px-3 py-2 text-right font-mono ${isLenientT ? "text-green-500" : ""}`}>
                             {tT}
@@ -191,9 +192,10 @@ function InsurerComparisonCard({
                   const insurer = INSURERS.find((i) => i.id === id)!;
                   const duration = getStrokeDuration(id);
                   const colors = INSURER_COLORS[id];
+                  const bgColor = colors.hex + "15";
                   return (
-                    <div key={id} className={`p-2 rounded ${colors.bg} ${colors.border} border`}>
-                      <div className={`font-medium ${colors.text}`}>{insurer.name}</div>
+                    <div key={id} className="p-2 rounded border" style={{ backgroundColor: bgColor, borderColor: colors.hex + "30" }}>
+                      <div className="font-medium" style={{ color: colors.hex }}>{insurer.name}</div>
                       <div className="text-muted-foreground mt-1">{duration}</div>
                     </div>
                   );
@@ -218,9 +220,10 @@ function InsurerComparisonCard({
                   const mmse = DEMENTIA_DEFINITION_DIFFERENCES.mmseRequirement[id];
                   const colors = INSURER_COLORS[id];
                   const isFlexible = id === "sunlife";
+                  const bgColor = colors.hex + "15";
                   return (
-                    <div key={id} className={`p-2 rounded ${colors.bg} ${colors.border} border`}>
-                      <div className={`font-medium ${colors.text}`}>{insurer.name}</div>
+                    <div key={id} className="p-2 rounded border" style={{ backgroundColor: bgColor, borderColor: colors.hex + "30" }}>
+                      <div className="font-medium" style={{ color: colors.hex }}>{insurer.name}</div>
                       <div className="text-muted-foreground mt-1 text-xs">{mmse}</div>
                       {isFlexible && (
                         <div className="text-green-500 text-xs mt-1">
@@ -360,16 +363,18 @@ export default function CriticalIllnessPage() {
             {INSURERS.map((insurer) => {
               const isSelected = selectedInsurers.includes(insurer.id);
               const colors = INSURER_COLORS[insurer.id];
+              const bgColor = colors.hex + "15";
               return (
                 <button
                   key={insurer.id}
                   onClick={() => toggleInsurer(insurer.id)}
-                  className={`
-                    p-3 rounded-lg border-2 transition-all text-center
-                    ${isSelected ? `${colors.border} ${colors.bg}` : "border-border hover:border-primary/50"}
-                  `}
+                  className="p-3 rounded-lg border-2 transition-all text-center"
+                  style={{
+                    borderColor: isSelected ? colors.hex : "hsl(var(--border))",
+                    backgroundColor: isSelected ? bgColor : "transparent",
+                  }}
                 >
-                  <div className={`font-medium text-sm ${isSelected ? colors.text : ""}`}>
+                  <div className="font-medium text-sm" style={{ color: isSelected ? colors.hex : "inherit" }}>
                     {insurer.name}
                   </div>
                   <div className="text-xs text-muted-foreground mt-1">{insurer.nameEn}</div>
