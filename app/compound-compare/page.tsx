@@ -572,10 +572,10 @@ export default function CompoundComparePage() {
   return (
     <div className="min-h-screen bg-background">
       {/* 桌面端：左右分栏 */}
-      <div className="hidden lg:flex">
+      <div className="hidden lg:grid lg:grid-cols-[400px_1fr] lg:h-screen lg:overflow-hidden">
         {/* 左侧：输入面板 - 固定定位 */}
-        <div className="w-[400px] sticky top-0 h-screen overflow-hidden bg-muted/30 flex flex-col">
-          <div className="p-4 h-full overflow-hidden">
+        <div className="bg-muted/30 overflow-y-auto">
+          <div className="p-4">
             <InputPanel
               principal={principal} setPrincipal={setPrincipal}
               simpleRate={simpleRate} setSimpleRate={setSimpleRate}
@@ -589,7 +589,7 @@ export default function CompoundComparePage() {
         </div>
 
         {/* 右侧：结果展示 - 可滚动 */}
-        <div className="flex-1 overflow-y-auto">
+        <div className="overflow-y-auto">
           <div className="max-w-4xl mx-auto p-8 pt-4 space-y-8">
             {/* 结果摘要卡片 */}
             <Card className="border-green-500/30 bg-gradient-to-br from-green-500/10 to-green-500/5">
