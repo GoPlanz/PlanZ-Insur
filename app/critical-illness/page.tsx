@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import { Shield, CheckCircle2, AlertCircle, Info, ChevronRight, Eye, EyeOff } from "lucide-react";
+import { Shield, CheckCircle2, AlertCircle, Info, CircleDot, ChevronRight, Eye, EyeOff } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -10,7 +10,9 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import {
   INSURERS,
+  DISEASE_CATEGORIES,
   HIGH_INCIDENCE_DISEASES,
+  getDiseasesByCategory,
   CANCER_DEFINITION_DIFFERENCES,
   HEART_ATTACK_DEFINITION_DIFFERENCES,
   STROKE_DEFINITION_DIFFERENCES,
@@ -22,50 +24,25 @@ import {
   getHeartAttackTroponin,
   getStrokeDuration,
   type InsurerId,
+  type DiseaseCategoryId,
 } from "@/src/lib/data/critical-illness-data";
 
-// 保司颜色配置（使用品牌色）
-const INSURER_COLORS: Record<InsurerId, { bg: string; text: string; border: string; hex: string }> = {
-  mainland: { bg: "bg-red-500/10", text: "text-red-500", border: "border-red-500/30", hex: "#DE2910" },
-  aia: { bg: "bg-red-500/10", text: "text-red-500", border: "border-red-500/30", hex: "#cc1344" },
-  prudential: { bg: "bg-red-500/10", text: "text-red-500", border: "border-red-500/30", hex: "#e61b2d" },
-  manulife: { bg: "bg-green-500/10", text: "text-green-500", border: "border-green-500/30", hex: "#2e8b57" },
-  axa: { bg: "bg-blue-500/10", text: "text-blue-500", border: "border-blue-500/30", hex: "#00008b" },
-  yf: { bg: "bg-blue-500/10", text: "text-blue-500", border: "border-blue-500/30", hex: "#012c67" },
-  sunlife: { bg: "bg-yellow-500/10", text: "text-yellow-500", border: "border-yellow-500/30", hex: "#f5b812" },
+// 保司颜色配置（优化深色文字可读性）
+const INSURER_COLORS: Record<InsurerId, { bg: string; text: string; border: string; hex: string; textLight: string }> = {
+  mainland: { bg: "bg-red-500/10", text: "text-red-600", border: "border-red-500/30", hex: "#DE2910", textLight: "#ff4444" },
+  aia: { bg: "bg-red-500/10", text: "text-red-600", border: "border-red-500/30", hex: "#cc1344", textLight: "#ff3366" },
+  prudential: { bg: "bg-red-500/10", text: "text-red-600", border: "border-red-500/30", hex: "#e61b2d", textLight: "#ff4455" },
+  manulife: { bg: "bg-green-500/10", text: "text-green-600", border: "border-green-500/30", hex: "#2e8b57", textLight: "#22c55e" },
+  axa: { bg: "bg-blue-500/10", text: "text-blue-700", border: "border-blue-500/30", hex: "#00008b", textLight: "#3b82f6" }, // 用更亮的蓝色
+  yf: { bg: "bg-blue-500/10", text: "text-blue-700", border: "border-blue-500/30", hex: "#012c67", textLight: "#3b82f6" }, // 用更亮的蓝色
+  sunlife: { bg: "bg-yellow-500/10", text: "text-yellow-600", border: "border-yellow-500/30", hex: "#f5b812", textLight: "#eab308" },
 };
 
-// 疾病分组
-const DISEASE_GROUPS = [
-  {
-    id: "tier1",
-    name: "三大高发重疾",
-    description: "占所有重疾理赔90%以上",
-    color: "text-red-500",
-    diseases: HIGH_INCIDENCE_DISEASES.filter((d) => d.tier === 1),
-  },
-  {
-    id: "tier2",
-    name: "前六大重疾",
-    description: "监管要求必须包含的核心疾病",
-    color: "text-orange-500",
-    diseases: HIGH_INCIDENCE_DISEASES.filter((d) => d.tier === 2),
-  },
-  {
-    id: "tier3",
-    name: "神经系统疾病",
-    description: "老龄化社会高发疾病",
-    color: "text-yellow-500",
-    diseases: HIGH_INCIDENCE_DISEASES.filter((d) => d.tier === 3),
-  },
-  {
-    id: "tier4",
-    name: "其他常见重疾",
-    description: "相对罕见但影响重大",
-    color: "text-blue-500",
-    diseases: HIGH_INCIDENCE_DISEASES.filter((d) => d.tier === 4),
-  },
-];
+// 疾病分类（基于理赔数据）
+const DISEASE_GROUPS = DISEASE_CATEGORIES.map((category) => ({
+  ...category,
+  diseases: getDiseasesByCategory(category.id),
+})).filter(group => group.diseases.length > 0);
 
 // 保司对比卡片组件
 function InsurerComparisonCard({
@@ -255,39 +232,41 @@ function InsurerComparisonCard({
   return <div className="space-y-4">{getComparisonContent()}</div>;
 }
 
-// 疾病卡片组件
+// 疾病卡片组件 - 允许多个展开
 function DiseaseCard({
   disease,
-  isSelected,
-  onSelect,
-  showComparison,
+  isExpanded,
+  onToggle,
   selectedInsurers,
 }: {
   disease: typeof HIGH_INCIDENCE_DISEASES[number];
-  isSelected: boolean;
-  onSelect: () => void;
-  showComparison: boolean;
+  isExpanded: boolean;
+  onToggle: () => void;
   selectedInsurers: InsurerId[];
 }) {
   return (
     <Card
       className={`transition-all cursor-pointer ${
-        isSelected
-          ? "border-primary bg-primary/5"
+        isExpanded
+          ? "border-primary bg-primary/5 shadow-md"
           : "border-border hover:border-primary/30"
       }`}
-      onClick={onSelect}
+      onClick={onToggle}
     >
       <CardHeader className="pb-3">
         <div className="flex items-start justify-between gap-2">
           <div className="flex-1 space-y-1">
-            <CardTitle className="text-base">{disease.name}</CardTitle>
+            <CardTitle className="text-base flex items-center gap-2">
+              {disease.name}
+              {isExpanded && <CircleDot className="h-4 w-4 text-primary" />}
+            </CardTitle>
             <CardDescription className="text-xs">{disease.nameEn}</CardDescription>
           </div>
           <Badge
-            variant={isSelected ? "default" : "outline"}
+            variant={isExpanded ? "default" : "outline"}
             className="shrink-0"
           >
+            {disease.tier === 0 && "早期"}
             {disease.tier === 1 && "高发"}
             {disease.tier === 2 && "核心"}
             {disease.tier === 3 && "老年"}
@@ -296,16 +275,60 @@ function DiseaseCard({
         </div>
       </CardHeader>
       <CardContent className="space-y-3">
-        <p className="text-sm text-muted-foreground line-clamp-2">
+        <p className="text-sm text-muted-foreground">
           {disease.description}
         </p>
-        {isSelected && showComparison && selectedInsurers.length >= 2 && (
-          <div className="pt-3 border-t border-border">
-            <InsurerComparisonCard
-              diseaseId={disease.id}
-              selectedInsurers={selectedInsurers}
-              showDetails={true}
-            />
+
+        {/* 详细理赔标准 - 根据是否有对应标准条件展示 */}
+        {isExpanded && (
+          <div className="pt-3 border-t border-border space-y-4">
+            {/* 理赔标准详情 - 只展示有实际内容的部分 */}
+            <div className="space-y-3">
+              {/* 重症标准 - 只展示有内容的情况 */}
+              {(disease.severeCriteria as string | undefined) && (
+                <div className="bg-red-950/20 border border-red-500/30 rounded-lg p-3">
+                  <div className="flex items-center gap-2 mb-2">
+                    <span className="text-xs font-semibold text-red-500 uppercase">重症 (100%)</span>
+                  </div>
+                  <p className="text-sm text-foreground/90">{disease.severeCriteria}</p>
+                </div>
+              )}
+
+              {/* 早期/轻症标准 - 排除"不适用"的情况 */}
+              {(disease.earlyCriteria as string | undefined) && (
+                <div className="bg-yellow-950/20 border border-yellow-500/30 rounded-lg p-3">
+                  <div className="flex items-center gap-2 mb-2">
+                    <span className="text-xs font-semibold text-yellow-500 uppercase">早期/轻症 (20-30%)</span>
+                  </div>
+                  <p className="text-sm text-foreground/90">{disease.earlyCriteria}</p>
+                </div>
+              )}
+
+              {/* 内地 vs 香港标准 */}
+              {disease.mainlandStandard && disease.hongKongStandard && (
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                  <div className="bg-muted/50 border border-border rounded-lg p-3">
+                    <div className="text-xs font-medium text-muted-foreground mb-1">内地(2020新规)</div>
+                    <p className="text-sm text-foreground/90">{disease.mainlandStandard}</p>
+                  </div>
+                  <div className="bg-muted/50 border border-border rounded-lg p-3">
+                    <div className="text-xs font-medium text-muted-foreground mb-1">香港保司</div>
+                    <p className="text-sm text-foreground/90">{disease.hongKongStandard}</p>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* 保司对比 - 如果选择了2家以上 */}
+            {selectedInsurers.length >= 2 && (
+              <div className="pt-3 border-t border-border">
+                <InsurerComparisonCard
+                  diseaseId={disease.id}
+                  selectedInsurers={selectedInsurers}
+                  showDetails={true}
+                />
+              </div>
+            )}
           </div>
         )}
       </CardContent>
@@ -314,15 +337,22 @@ function DiseaseCard({
 }
 
 export default function CriticalIllnessPage() {
-  const [selectedDiseaseId, setSelectedDiseaseId] = useState<string | null>(null);
+  // 支持多个疾病卡片同时展开
+  const [expandedDiseaseIds, setExpandedDiseaseIds] = useState<Set<string>>(new Set());
   const [selectedInsurers, setSelectedInsurers] = useState<InsurerId[]>(["aia", "prudential"]);
-  const [showDetails, setShowDetails] = useState(false);
 
-  // 计算选中的疾病
-  const selectedDisease = useMemo(
-    () => HIGH_INCIDENCE_DISEASES.find((d) => d.id === selectedDiseaseId),
-    [selectedDiseaseId]
-  );
+  // 切换疾病卡片展开状态
+  const toggleDiseaseExpand = (diseaseId: string) => {
+    setExpandedDiseaseIds((prev) => {
+      const newSet = new Set(prev);
+      if (newSet.has(diseaseId)) {
+        newSet.delete(diseaseId);
+      } else {
+        newSet.add(diseaseId);
+      }
+      return newSet;
+    });
+  };
 
   // 切换保司选择
   const toggleInsurer = (insurerId: InsurerId) => {
@@ -364,25 +394,48 @@ export default function CriticalIllnessPage() {
             {INSURERS.map((insurer) => {
               const isSelected = selectedInsurers.includes(insurer.id);
               const colors = INSURER_COLORS[insurer.id];
-              const bgColor = colors.hex + "15";
+              const bgColor = colors.hex + "20"; // 稍微深一点的背景
               return (
                 <button
                   key={insurer.id}
                   onClick={() => toggleInsurer(insurer.id)}
-                  className="p-3 rounded-lg border-2 transition-all text-center"
+                  className={`p-3 rounded-lg border-2 transition-all text-center relative ${
+                    isSelected ? "ring-2 ring-offset-2" : ""
+                  }`}
                   style={{
                     borderColor: isSelected ? colors.hex : "hsl(var(--border))",
                     backgroundColor: isSelected ? bgColor : "transparent",
-                  }}
+                    "--tw-ring-color": isSelected ? colors.hex : "transparent",
+                  } as React.CSSProperties}
                 >
-                  <div className="font-medium text-sm" style={{ color: isSelected ? colors.hex : "inherit" }}>
+                  {/* 选中标记 */}
+                  {isSelected && (
+                    <div
+                      className="absolute -top-2 -right-2 w-5 h-5 rounded-full flex items-center justify-center text-white text-xs font-bold"
+                      style={{ backgroundColor: colors.hex }}
+                    >
+                      ✓
+                    </div>
+                  )}
+                  <div className="font-medium text-sm" style={{ color: isSelected ? colors.textLight : "inherit" }}>
                     {insurer.name}
                   </div>
-                  <div className="text-xs text-muted-foreground mt-1">{insurer.nameEn}</div>
+                  <div className={`text-xs mt-1 ${isSelected ? "font-medium" : "text-muted-foreground"}`} style={{ color: isSelected ? colors.textLight : undefined }}>
+                    {insurer.nameEn}
+                  </div>
+                  {!isSelected && <div className="text-xs text-muted-foreground mt-1">点击选择</div>}
                 </button>
               );
             })}
           </div>
+          {/* 已选提示 */}
+          {selectedInsurers.length > 0 && (
+            <div className="mt-4 text-center">
+              <span className="text-sm text-muted-foreground">
+                已选择 <span className="font-semibold text-foreground">{selectedInsurers.length}</span> 家保司
+              </span>
+            </div>
+          )}
         </div>
       </section>
 
@@ -390,10 +443,10 @@ export default function CriticalIllnessPage() {
       <section className="py-12 px-4 sm:px-6 lg:px-8">
         <div className="max-w-6xl mx-auto">
           {/* 疾病列表 */}
-          <Tabs defaultValue="tier1" className="w-full">
-            <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4 mb-8">
+          <Tabs defaultValue="malignant" className="w-full">
+            <TabsList className="grid w-full grid-cols-2 sm:grid-cols-3 md:grid-cols-5 mb-8">
               {DISEASE_GROUPS.map((group) => (
-                <TabsTrigger key={group.id} value={group.id} className="text-sm">
+                <TabsTrigger key={group.id} value={group.id} className="text-xs sm:text-sm">
                   {group.name}
                 </TabsTrigger>
               ))}
@@ -414,15 +467,14 @@ export default function CriticalIllnessPage() {
                   </CardContent>
                 </Card>
 
-                {/* 疾病卡片 */}
+                {/* 疾病卡片 - 支持多个展开 */}
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                   {group.diseases.map((disease) => (
                     <DiseaseCard
                       key={disease.id}
                       disease={disease}
-                      isSelected={selectedDiseaseId === disease.id}
-                      onSelect={() => setSelectedDiseaseId(disease.id)}
-                      showComparison={selectedDiseaseId === disease.id}
+                      isExpanded={expandedDiseaseIds.has(disease.id)}
+                      onToggle={() => toggleDiseaseExpand(disease.id)}
                       selectedInsurers={selectedInsurers}
                     />
                   ))}
@@ -432,7 +484,7 @@ export default function CriticalIllnessPage() {
           </Tabs>
 
           {/* 详细对比提示 */}
-          {selectedDisease && selectedInsurers.length >= 2 && (
+          {expandedDiseaseIds.size > 0 && selectedInsurers.length >= 2 && (
             <div className="mt-8 p-4 bg-muted/50 rounded-lg">
               <div className="flex items-start gap-3">
                 <Info className="h-5 w-5 text-primary mt-0.5" />
