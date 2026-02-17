@@ -16,58 +16,113 @@ import {
   ReferenceLine,
 } from "recharts";
 
-// 计算累积现金价值（简化版复利计算）
-function calculateCashValue(
-  annualPremium: number,
-  years: number,
-  irRate: number
-): number {
-  let total = 0;
-  for (let i = 0; i < years; i++) {
-    // 假设保费在年初缴纳
-    total += annualPremium * Math.pow(1 + irRate, years - i);
+// IRR 市场数据（与复利对比工具一致）
+// 基于真实保单现金价值计算的年化收益率
+const IRR_BY_YEARS: Record<number, number> = {
+  1: -98.50,
+  2: -45.20,
+  3: -22.10,
+  4: -12.30,
+  5: -5.60,
+  6: -1.20,
+  7: 1.35,
+  8: 2.65,
+  9: 3.20,
+  10: 3.65,
+  11: 3.95,
+  12: 4.25,
+  13: 4.60,
+  14: 4.85,
+  15: 5.05,
+  16: 5.20,
+  17: 5.38,
+  18: 5.55,
+  19: 5.75,
+  20: 5.95,
+  21: 6.05,
+  22: 6.12,
+  23: 6.20,
+  24: 6.28,
+  25: 6.35,
+  26: 6.40,
+  27: 6.45,
+  28: 6.50,
+  29: 6.50,
+  30: 6.50,
+};
+
+// 基于真实IRR数据计算现金价值（与复利对比工具一致）
+function calculateCashValueByYear(annualPremium: number, year: number): number {
+  if (year <= 0) return 0;
+
+  let totalCashValue = 0;
+
+  // 假设每年年初缴费，计算每年的现金价值累积
+  for (let i = 1; i <= year; i++) {
+    const yearsSincePayment = year - i + 1;
+    const irr = IRR_BY_YEARS[Math.min(yearsSincePayment, 30)] / 100;
+
+    if (irr < 0) {
+      // 负IRR年份使用回收比例
+      const recoveryFactors: Record<number, number> = {
+        1: 0.02,
+        2: 0.55,
+        3: 0.78,
+        4: 0.88,
+        5: 0.94,
+        6: 0.99,
+      };
+      totalCashValue += annualPremium * (recoveryFactors[yearsSincePayment] || 1);
+    } else {
+      // 正IRR年份使用复利公式
+      totalCashValue += annualPremium * Math.pow(1 + irr, yearsSincePayment);
+    }
   }
-  return total;
+
+  return totalCashValue;
 }
 
-// 计算每年的汇率盈亏
+// 计算每年的汇率盈亏数据
 function calculateYearlyData(
-  startYear: number,
   startRate: number,
   currentRate: number,
   annualPremium: number,
-  years: number,
-  irRate: number
+  years: number
 ) {
   const data = [];
-  const totalPremium = annualPremium * years;
 
-  // 汇率变化率
-  const rateChange = (currentRate - startRate) / startRate;
+  for (let year = 0; year <= 20; year++) {
+    // 现金价值（使用真实IRR计算）
+    const cashValueUSD = calculateCashValueByYear(annualPremium, year);
 
-  for (let year = 0; year <= years + 10; year++) {
-    // 计算现金价值（简化：假设前期积累，后期才有收益）
-    const cashValue = calculateCashValue(annualPremium, Math.min(year, years), irRate);
+    // 累计已缴保费（美元）
+    const totalPaidUSD = year <= years ? annualPremium * year : annualPremium * years;
 
     // 汇率导致的损失/收益
-    const fxLoss = totalPremium * rateChange * (year / years);
+    const fxLoss = totalPaidUSD * (currentRate - startRate);
 
-    // 实际收益（人民币）
-    const actualValue = cashValue * currentRate - fxLoss;
+    // 投入本金（人民币，投保时汇率）
+    const investedRMB = totalPaidUSD * startRate;
 
-    // 累计保费投入（人民币）
-    const investedRMB = annualPremium * Math.min(year, years) * currentRate;
+    // 当前现金价值（人民币，当前汇率）
+    const cashValueRMB = cashValueUSD * currentRate;
 
-    // 盈亏
-    const profitLoss = actualValue - investedRMB;
+    // 实际收益 = 现金价值 - 汇率损失 - 投入本金
+    const actualProfit = cashValueRMB - fxLoss - investedRMB;
+
+    // 显示IRR
+    const irr = year > 0 ? IRR_BY_YEARS[Math.min(year, 30)] : 0;
 
     data.push({
       year,
-      cashValueUSD: Math.round(cashValue),
+      cashValueUSD: Math.round(cashValueUSD),
+      cashValueRMB: Math.round(cashValueRMB),
+      totalPaidUSD: Math.round(totalPaidUSD),
+      investedRMB: Math.round(investedRMB),
       fxLoss: Math.round(-fxLoss),
-      actualValue: Math.round(actualValue),
-      invested: Math.round(investedRMB),
-      profitLoss: Math.round(profitLoss),
+      actualProfit: Math.round(actualProfit),
+      irr: irr.toFixed(1),
+      isLoss: actualProfit < 0,
     });
   }
 
@@ -75,9 +130,9 @@ function calculateYearlyData(
 }
 
 // 找到盈亏平衡点
-function findBreakEvenYear(data: { profitLoss: number }[]) {
+function findBreakEvenYear(data: { actualProfit: number }[]) {
   for (let i = 1; i < data.length; i++) {
-    if (data[i].profitLoss > 0 && data[i - 1].profitLoss <= 0) {
+    if (data[i].actualProfit > 0 && data[i - 1].actualProfit <= 0) {
       return i;
     }
   }
@@ -91,51 +146,21 @@ export default function FXCalculatorPage() {
   const [currentRate, setCurrentRate] = useState(7.2);
   const [annualPremium, setAnnualPremium] = useState(10000);
   const [years, setYears] = useState(5);
-  const [irRate, setIrRate] = useState(5);
 
   // 计算结果
   const result = useMemo(() => {
-    const totalPremiumUSD = annualPremium * years;
-    const totalPremiumRMBAtStart = totalPremiumUSD * startRate;
-    const totalPremiumRMBCurrent = totalPremiumUSD * currentRate;
-
-    // 汇率损失
-    const fxLoss = totalPremiumRMBCurrent - totalPremiumRMBAtStart;
-
-    // 最终现金价值
-    const finalCashValue = calculateCashValue(annualPremium, years, irRate / 100);
-
-    // 换算人民币
-    const finalValueRMB = finalCashValue * currentRate;
-
-    // 实际收益（扣除汇率损失）
-    const actualProfit = finalValueRMB - totalPremiumRMBAtStart;
-
-    // 年度数据
-    const yearlyData = calculateYearlyData(
-      startYear,
-      startRate,
-      currentRate,
-      annualPremium,
-      years,
-      irRate / 100
-    );
-
-    // 盈亏平衡年
+    const yearlyData = calculateYearlyData(startRate, currentRate, annualPremium, years);
     const breakEvenYear = findBreakEvenYear(yearlyData);
+    const currentYearData = yearlyData[years] || yearlyData[yearlyData.length - 1];
+    const rateChange = ((currentRate - startRate) / startRate) * 100;
 
     return {
-      totalPremiumUSD,
-      totalPremiumRMBAtStart,
-      fxLoss,
-      finalCashValue,
-      finalValueRMB,
-      actualProfit,
       yearlyData,
       breakEvenYear,
-      rateChange: ((currentRate - startRate) / startRate) * 100,
+      currentYearData,
+      rateChange,
     };
-  }, [startYear, startRate, currentRate, annualPremium, years, irRate]);
+  }, [startRate, currentRate, annualPremium, years]);
 
   const formatCurrency = (value: number) => {
     if (Math.abs(value) >= 10000) {
@@ -257,27 +282,6 @@ export default function FXCalculatorPage() {
                     <span>20年</span>
                   </div>
                 </div>
-
-                {/* 预期IRR */}
-                <div className="space-y-3">
-                  <div className="flex justify-between">
-                    <label className="text-sm font-medium">预期IRR (%)</label>
-                    <span className="text-sm font-medium">{irRate}%</span>
-                  </div>
-                  <input
-                    type="range"
-                    min={0}
-                    max={10}
-                    step={0.5}
-                    value={irRate}
-                    onChange={(e) => setIrRate(Number(e.target.value))}
-                    className="w-full"
-                  />
-                  <div className="flex justify-between text-xs text-muted-foreground">
-                    <span>0%</span>
-                    <span>10%</span>
-                  </div>
-                </div>
               </CardContent>
             </Card>
 
@@ -304,7 +308,7 @@ export default function FXCalculatorPage() {
                   <CardContent className="pt-6">
                     <div className="text-center">
                       <div className="text-2xl font-bold text-red-500">
-                        -{formatCurrency(result.fxLoss)}
+                        -{formatCurrency(result.currentYearData.fxLoss)}
                       </div>
                       <div className="text-sm text-muted-foreground mt-1">汇率损失</div>
                     </div>
@@ -315,7 +319,7 @@ export default function FXCalculatorPage() {
                   <CardContent className="pt-6">
                     <div className="text-center">
                       <div className="text-2xl font-bold">
-                        {formatCurrency(result.finalCashValue)}
+                        {formatCurrency(result.currentYearData.cashValueUSD)}
                       </div>
                       <div className="text-sm text-muted-foreground mt-1">现金价值(USD)</div>
                     </div>
@@ -325,8 +329,8 @@ export default function FXCalculatorPage() {
                 <Card>
                   <CardContent className="pt-6">
                     <div className="text-center">
-                      <div className={`text-2xl font-bold ${result.actualProfit >= 0 ? 'text-green-500' : 'text-red-500'}`}>
-                        {result.actualProfit >= 0 ? '+' : ''}{formatCurrency(result.actualProfit)}
+                      <div className={`text-2xl font-bold ${result.currentYearData.actualProfit >= 0 ? 'text-green-500' : 'text-red-500'}`}>
+                        {result.currentYearData.actualProfit >= 0 ? '+' : ''}{formatCurrency(result.currentYearData.actualProfit)}
                       </div>
                       <div className="text-sm text-muted-foreground mt-1">实际收益(CNY)</div>
                     </div>
