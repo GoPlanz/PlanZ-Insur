@@ -393,7 +393,7 @@ export default function FXCalculatorPage() {
                 <CardHeader>
                   <CardTitle>收益变化曲线</CardTitle>
                   <CardDescription>
-                    点击图表上的年份点查看对应收益
+                    点击图表上的圆点可切换查看不同年份的数据
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
@@ -477,18 +477,26 @@ export default function FXCalculatorPage() {
                       </LineChart>
                     </ResponsiveContainer>
                   </div>
-                  <div className="flex justify-center gap-6 mt-4 text-sm">
+                  <div className="flex flex-wrap justify-center gap-4 mt-4 text-sm">
                     <div className="flex items-center gap-2">
-                      <div className="w-3 h-0.5 bg-muted-foreground" />
+                      <div className="w-6 h-0.5 bg-muted-foreground" />
                       <span className="text-muted-foreground">累计投入</span>
                     </div>
                     <div className="flex items-center gap-2">
-                      <div className="w-3 h-0.5 bg-green-500" />
+                      <div className="w-6 h-0.5 bg-green-500" />
                       <span className="text-green-500">实际价值</span>
                     </div>
                     <div className="flex items-center gap-2">
-                      <div className="w-3 h-0.5 bg-blue-500" />
+                      <div className="w-6 h-0.5 bg-blue-500" />
                       <span className="text-blue-500">盈亏</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <div className="w-1 h-4 bg-amber-500" />
+                      <span className="text-amber-600">当前查看年份</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <div className="w-1 h-4 bg-green-500 opacity-50" />
+                      <span className="text-green-600">盈亏平衡点</span>
                     </div>
                   </div>
                 </CardContent>
