@@ -26,7 +26,7 @@ const tools = [
     name: "汇率盈亏计算器",
     description: "计算美元保单需要持有多少年才能抵消汇率下跌的损失",
     icon: DollarSign,
-    status: "coming",
+    status: "ready",
     phase: "阶段二",
   },
   {
