@@ -444,7 +444,7 @@ export default function CriticalIllnessPage() {
         <div className="max-w-6xl mx-auto">
           {/* 疾病列表 */}
           <Tabs defaultValue="malignant" className="w-full">
-            <TabsList className="grid w-full grid-cols-2 sm:grid-cols-3 md:grid-cols-5 mb-8">
+            <TabsList className="flex flex-wrap justify-center gap-2 mb-8">
               {DISEASE_GROUPS.map((group) => (
                 <TabsTrigger key={group.id} value={group.id} className="text-xs sm:text-sm">
                   {group.name}
@@ -505,7 +505,7 @@ export default function CriticalIllnessPage() {
       <section className="py-20 px-4 sm:px-6 lg:px-8 border-t border-border">
         <div className="max-w-3xl mx-auto">
           <h2 className="text-2xl font-semibold mb-8 text-center">常见问题</h2>
-          <div className="space-y-6">
+          <div className="space-y-4">
             <Card>
               <CardContent className="py-6">
                 <h3 className="font-medium mb-2">什么是「原位癌」？</h3>
@@ -517,10 +517,19 @@ export default function CriticalIllnessPage() {
             </Card>
             <Card>
               <CardContent className="py-6">
+                <h3 className="font-medium mb-2">TNM分期是什么意思？T1N0M0有多严重？</h3>
+                <p className="text-muted-foreground text-sm">
+                  TNM是肿瘤分期系统：T代表肿瘤大小/浸润深度，N代表淋巴结转移情况，M代表远处转移。
+                  T1N0M0表示肿瘤较小且无转移，属于早期癌症。在保险中，甲状腺癌T1N0M0期通常归为「早期/轻症」，赔付比例较低（20-30%）。
+                </p>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardContent className="py-6">
                 <h3 className="font-medium mb-2">为什么香港保单的中风定义比内地宽松？</h3>
                 <p className="text-muted-foreground text-sm">
                   香港保司通常要求神经功能障碍持续28天，而内地2020年新规要求180天。
-                  这是两地监管差异，香港产品的理赔门槛相对更低。
+                  这意味着香港保单可以在更短时间内完成理赔，患者能更快获得赔偿金进行康复治疗。
                 </p>
               </CardContent>
             </Card>
@@ -531,6 +540,42 @@ export default function CriticalIllnessPage() {
                   肌钙蛋白（Troponin）是心肌损伤的特异性指标。心脏病发作的诊断中，
                   肌钙蛋白数值是关键判定标准。安盛对Troponin T的要求最低（{'>'}0.2 ng/ml），
                   意味着在相同情况下更容易达到理赔标准。
+                </p>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardContent className="py-6">
+                <h3 className="font-medium mb-2">MMSE评分是什么？阿尔茨海默病理赔要看什么？</h3>
+                <p className="text-muted-foreground text-sm">
+                  MMSE（简短智能测验）满分30分，检测认知功能。保司通常要求MMSE&lt;10分才能获赔严重脑退化保障。
+                  部分保司（如友邦、宏利）更看重临床状态，只要日常生活需要他人持续照顾即可理赔，不硬性要求分数。
+                </p>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardContent className="py-6">
+                <h3 className="font-medium mb-2">甲状腺癌为什么赔付少？</h3>
+                <p className="text-muted-foreground text-sm">
+                  甲状腺癌（特别是T1N0M0期）治愈率高、治疗费用相对较低，已从各大保司的「重症」范畴中剔除。
+                  内地将其归入「恶性肿瘤——轻度」，赔付30%；香港作为「早期危疾」，赔付20-30%。
+                </p>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardContent className="py-6">
+                <h3 className="font-medium mb-2">微创搭桥手术能不能赔？</h3>
+                <p className="text-muted-foreground text-sm">
+                  大多数保司将「微创搭桥」（锁孔手术）归入「早期/非严重危疾」，赔付20-30%。
+                  只有传统开胸手术才能获得100%重症赔付。香港保司普遍将微创手术列为早期保障，保障更全面。
+                </p>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardContent className="py-6">
+                <h3 className="font-medium mb-2">买重疾险选内地还是香港？</h3>
+                <p className="text-muted-foreground text-sm">
+                  两者各有优势：内地保单受银保监会监管，保障范围统一；香港保单部分疾病定义更宽松，理赔门槛较低。
+                  建议根据自身就医地点、预算、家族病史等因素综合考虑，或咨询专业顾问。
                 </p>
               </CardContent>
             </Card>

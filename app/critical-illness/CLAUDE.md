@@ -9,4 +9,11 @@
 |----|------|---|-------|------|
 | #1342 | 9:46 PM | 🔵 | Critical illness comparison page exists with heart attack definitions | ~265 |
 | #1334 | 9:45 PM | 🟣 | Critical illness comparison page implemented | ~406 |
+
+### Feb 17, 2026
+
+| ID | Time | T | Title | Read |
+|----|------|---|-------|------|
+| #1593 | 11:41 AM | 🟣 | Critical illness page refactored to use dynamic disease categories | ~218 |
+| #1592 | " | 🟣 | Critical illness data restructured with disease categories | ~336 |
 </claude-mem-context>
