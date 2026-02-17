@@ -416,6 +416,13 @@ export default function FXCalculatorPage() {
                           dataKey="year"
                           tick={{ fontSize: 12 }}
                           tickFormatter={(value) => `${value}年`}
+                          onClick={(e) => {
+                            if (e && typeof e === 'object' && 'value' in e) {
+                              const year = Number(e.value);
+                              if (year > 0) setSelectedYear(year);
+                            }
+                          }}
+                          style={{ cursor: 'pointer' }}
                         />
                         <YAxis
                           tick={{ fontSize: 12 }}
@@ -463,7 +470,8 @@ export default function FXCalculatorPage() {
                           dataKey="actualValue"
                           stroke="#22c55e"
                           strokeWidth={2}
-                          dot={{ r: 4, fill: '#22c55e' }}
+                          dot={{ r: 6, fill: '#22c55e', cursor: 'pointer' }}
+                          activeDot={{ r: 8, fill: '#22c55e', stroke: '#fff', strokeWidth: 2 }}
                           name="实际价值"
                         />
                         <Line
@@ -471,7 +479,8 @@ export default function FXCalculatorPage() {
                           dataKey="profitLoss"
                           stroke="#3b82f6"
                           strokeWidth={2}
-                          dot={{ r: 4, fill: '#3b82f6' }}
+                          dot={{ r: 6, fill: '#3b82f6', cursor: 'pointer' }}
+                          activeDot={{ r: 8, fill: '#3b82f6', stroke: '#fff', strokeWidth: 2 }}
                           name="盈亏"
                         />
                       </LineChart>
