@@ -118,9 +118,13 @@ function calculateYearlyData(
       cashValueUSD: Math.round(cashValueUSD),
       cashValueRMB: Math.round(cashValueRMB),
       totalPaidUSD: Math.round(totalPaidUSD),
+      invested: Math.round(investedRMB),
       investedRMB: Math.round(investedRMB),
+      cashValue: Math.round(cashValueRMB),
+      actualValue: Math.round(cashValueRMB),
       fxLoss: Math.round(-fxLoss),
       actualProfit: Math.round(actualProfit),
+      profitLoss: Math.round(actualProfit),
       irr: irr.toFixed(1),
       isLoss: actualProfit < 0,
     });
@@ -141,26 +145,27 @@ function findBreakEvenYear(data: { actualProfit: number }[]) {
 
 export default function FXCalculatorPage() {
   // 输入状态
-  const [startYear, setStartYear] = useState(2020);
   const [startRate, setStartRate] = useState(7.0);
   const [currentRate, setCurrentRate] = useState(7.2);
   const [annualPremium, setAnnualPremium] = useState(10000);
-  const [years, setYears] = useState(5);
+  const [paymentYears, setPaymentYears] = useState(5);
+  const [selectedYear, setSelectedYear] = useState(10); // 用户选择的查看年份
 
   // 计算结果
   const result = useMemo(() => {
-    const yearlyData = calculateYearlyData(startRate, currentRate, annualPremium, years);
+    const yearlyData = calculateYearlyData(startRate, currentRate, annualPremium, paymentYears);
     const breakEvenYear = findBreakEvenYear(yearlyData);
-    const currentYearData = yearlyData[years] || yearlyData[yearlyData.length - 1];
     const rateChange = ((currentRate - startRate) / startRate) * 100;
 
     return {
       yearlyData,
       breakEvenYear,
-      currentYearData,
       rateChange,
     };
-  }, [startRate, currentRate, annualPremium, years]);
+  }, [startRate, currentRate, annualPremium, paymentYears]);
+
+  // 当前选中的年份数据
+  const selectedYearData = result.yearlyData[selectedYear] || result.yearlyData[result.yearlyData.length - 1];
 
   const formatCurrency = (value: number) => {
     if (Math.abs(value) >= 10000) {
@@ -202,19 +207,6 @@ export default function FXCalculatorPage() {
                 <CardDescription>填写您的保单信息</CardDescription>
               </CardHeader>
               <CardContent className="space-y-6">
-                {/* 投保年份 */}
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">投保年份</label>
-                  <input
-                    type="number"
-                    min={2010}
-                    max={2030}
-                    value={startYear}
-                    onChange={(e) => setStartYear(Number(e.target.value))}
-                    className="w-full h-10 px-3 rounded-md border border-input bg-background text-sm"
-                  />
-                </div>
-
                 {/* 投保时汇率 */}
                 <div className="space-y-2">
                   <label className="text-sm font-medium">投保时汇率 (USD/CNY)</label>
@@ -267,14 +259,14 @@ export default function FXCalculatorPage() {
                 <div className="space-y-3">
                   <div className="flex justify-between">
                     <label className="text-sm font-medium">缴费年期</label>
-                    <span className="text-sm font-medium">{years}年</span>
+                    <span className="text-sm font-medium">{paymentYears}年</span>
                   </div>
                   <input
                     type="range"
                     min={1}
                     max={20}
-                    value={years}
-                    onChange={(e) => setYears(Number(e.target.value))}
+                    value={paymentYears}
+                    onChange={(e) => setPaymentYears(Number(e.target.value))}
                     className="w-full"
                   />
                   <div className="flex justify-between text-xs text-muted-foreground">
@@ -282,11 +274,40 @@ export default function FXCalculatorPage() {
                     <span>20年</span>
                   </div>
                 </div>
+
+                {/* 预期退保年份 */}
+                <div className="space-y-3">
+                  <div className="flex justify-between">
+                    <label className="text-sm font-medium">预期退保年份</label>
+                    <span className="text-sm font-medium">{selectedYear}年</span>
+                  </div>
+                  <input
+                    type="range"
+                    min={1}
+                    max={20}
+                    value={selectedYear}
+                    onChange={(e) => setSelectedYear(Number(e.target.value))}
+                    className="w-full"
+                  />
+                  <div className="flex justify-between text-xs text-muted-foreground">
+                    <span>1年</span>
+                    <span>20年</span>
+                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    选择预期退保年份，查看对应收益
+                  </p>
+                </div>
               </CardContent>
             </Card>
 
             {/* 结果面板 */}
             <div className="lg:col-span-2 space-y-6">
+              {/* 当前查看年份提示 */}
+              <div className="flex items-center justify-center gap-2 p-3 bg-amber-500/10 rounded-lg border border-amber-500/30">
+                <span className="text-amber-600 font-medium">当前查看第 {selectedYear} 年</span>
+                <span className="text-sm text-muted-foreground">（点击图表上的圆点或使用滑块切换年份）</span>
+              </div>
+
               {/* 关键指标 */}
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
                 <Card>
@@ -308,7 +329,7 @@ export default function FXCalculatorPage() {
                   <CardContent className="pt-6">
                     <div className="text-center">
                       <div className="text-2xl font-bold text-red-500">
-                        -{formatCurrency(result.currentYearData.fxLoss)}
+                        -{formatCurrency(selectedYearData.fxLoss)}
                       </div>
                       <div className="text-sm text-muted-foreground mt-1">汇率损失</div>
                     </div>
@@ -319,7 +340,7 @@ export default function FXCalculatorPage() {
                   <CardContent className="pt-6">
                     <div className="text-center">
                       <div className="text-2xl font-bold">
-                        {formatCurrency(result.currentYearData.cashValueUSD)}
+                        {formatCurrency(selectedYearData.cashValueUSD)}
                       </div>
                       <div className="text-sm text-muted-foreground mt-1">现金价值(USD)</div>
                     </div>
@@ -329,8 +350,8 @@ export default function FXCalculatorPage() {
                 <Card>
                   <CardContent className="pt-6">
                     <div className="text-center">
-                      <div className={`text-2xl font-bold ${result.currentYearData.actualProfit >= 0 ? 'text-green-500' : 'text-red-500'}`}>
-                        {result.currentYearData.actualProfit >= 0 ? '+' : ''}{formatCurrency(result.currentYearData.actualProfit)}
+                      <div className={`text-2xl font-bold ${selectedYearData.actualProfit >= 0 ? 'text-green-500' : 'text-red-500'}`}>
+                        {selectedYearData.actualProfit >= 0 ? '+' : ''}{formatCurrency(selectedYearData.actualProfit)}
                       </div>
                       <div className="text-sm text-muted-foreground mt-1">实际收益(CNY)</div>
                     </div>
@@ -372,13 +393,24 @@ export default function FXCalculatorPage() {
                 <CardHeader>
                   <CardTitle>收益变化曲线</CardTitle>
                   <CardDescription>
-                    展示历年现金价值、投入与实际收益变化
+                    点击图表上的年份点查看对应收益
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
                   <div className="h-[350px]">
                     <ResponsiveContainer width="100%" height="100%">
-                      <LineChart data={result.yearlyData} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
+                      <LineChart
+                        data={result.yearlyData}
+                        margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
+                        onClick={(data: unknown) => {
+                          const chartData = data as { activePayload?: Array<{ payload: { year: number } }> } | undefined;
+                          if (chartData && chartData.activePayload && chartData.activePayload[0]) {
+                            const year = chartData.activePayload[0].payload.year;
+                            if (year > 0) setSelectedYear(year);
+                          }
+                        }}
+                        style={{ cursor: 'pointer' }}
+                      >
                         <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
                         <XAxis
                           dataKey="year"
@@ -403,6 +435,13 @@ export default function FXCalculatorPage() {
                           stroke="hsl(var(--muted-foreground))"
                           strokeDasharray="3 3"
                         />
+                        <ReferenceLine
+                          x={selectedYear}
+                          stroke="#f59e0b"
+                          strokeWidth={2}
+                          strokeDasharray="5 5"
+                          label={{ value: '当前查看', position: 'top', fill: '#f59e0b', fontSize: 12 }}
+                        />
                         {result.breakEvenYear && (
                           <ReferenceLine
                             x={result.breakEvenYear}
@@ -424,7 +463,7 @@ export default function FXCalculatorPage() {
                           dataKey="actualValue"
                           stroke="#22c55e"
                           strokeWidth={2}
-                          dot={false}
+                          dot={{ r: 4, fill: '#22c55e' }}
                           name="实际价值"
                         />
                         <Line
@@ -432,7 +471,7 @@ export default function FXCalculatorPage() {
                           dataKey="profitLoss"
                           stroke="#3b82f6"
                           strokeWidth={2}
-                          dot={false}
+                          dot={{ r: 4, fill: '#3b82f6' }}
                           name="盈亏"
                         />
                       </LineChart>
