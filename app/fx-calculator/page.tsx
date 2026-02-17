@@ -329,9 +329,9 @@ export default function FXCalculatorPage() {
                   <CardContent className="pt-6">
                     <div className="text-center">
                       <div className="text-2xl font-bold text-red-500">
-                        -{formatCurrency(selectedYearData.fxLoss)}
+                        -¥{formatCurrency(selectedYearData.fxLoss)}
                       </div>
-                      <div className="text-sm text-muted-foreground mt-1">汇率损失</div>
+                      <div className="text-sm text-muted-foreground mt-1">汇率损失(CNY)</div>
                     </div>
                   </CardContent>
                 </Card>
@@ -340,7 +340,7 @@ export default function FXCalculatorPage() {
                   <CardContent className="pt-6">
                     <div className="text-center">
                       <div className="text-2xl font-bold">
-                        {formatCurrency(selectedYearData.cashValueUSD)}
+                        ${formatCurrency(selectedYearData.cashValueUSD)}
                       </div>
                       <div className="text-sm text-muted-foreground mt-1">现金价值(USD)</div>
                     </div>
@@ -351,7 +351,7 @@ export default function FXCalculatorPage() {
                   <CardContent className="pt-6">
                     <div className="text-center">
                       <div className={`text-2xl font-bold ${selectedYearData.actualProfit >= 0 ? 'text-green-500' : 'text-red-500'}`}>
-                        {selectedYearData.actualProfit >= 0 ? '+' : ''}{formatCurrency(selectedYearData.actualProfit)}
+                        {selectedYearData.actualProfit >= 0 ? '+¥' : '-¥'}{formatCurrency(Math.abs(selectedYearData.actualProfit))}
                       </div>
                       <div className="text-sm text-muted-foreground mt-1">实际收益(CNY)</div>
                     </div>
@@ -429,13 +429,25 @@ export default function FXCalculatorPage() {
                           tickFormatter={(value) => `${formatCurrency(value)}`}
                         />
                         <Tooltip
-                          formatter={(value, name) => [
-                            `${formatCurrency(Number(value) || 0)}`,
-                            name === 'invested' ? '累计投入' :
-                            name === 'actualValue' ? '实际价值' :
-                            name === 'profitLoss' ? '盈亏' : name
-                          ]}
+                          formatter={(value, name) => {
+                            const num = Number(value) || 0;
+                            const formatted = formatCurrency(num);
+                            if (name === '累计投入' || name === '实际价值') {
+                              return [`¥${formatted}`, name];
+                            }
+                            if (name === '盈亏') {
+                              return [`¥${formatted}`, name];
+                            }
+                            return [`${formatted}`, name];
+                          }}
                           labelFormatter={(label) => `第${label}年`}
+                          contentStyle={{
+                            backgroundColor: 'rgba(255, 255, 255, 0.8)',
+                            backdropFilter: 'blur(8px)',
+                            border: '1px solid rgba(255, 255, 255, 0.3)',
+                            borderRadius: '8px',
+                            boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)',
+                          }}
                         />
                         <ReferenceLine
                           y={0}
