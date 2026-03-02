@@ -439,11 +439,18 @@ export default function FXCalculatorPage() {
                           }}
                           labelFormatter={(label) => `第${label}年`}
                           contentStyle={{
-                            backgroundColor: 'rgba(255, 255, 255, 0.8)',
-                            backdropFilter: 'blur(8px)',
-                            border: '1px solid rgba(255, 255, 255, 0.3)',
+                            backgroundColor: 'hsl(var(--card))',
+                            border: '1px solid hsl(var(--border))',
                             borderRadius: '8px',
-                            boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)',
+                            boxShadow: '0 4px 12px rgba(0, 0, 0, 0.2)',
+                          }}
+                          itemStyle={{
+                            color: 'hsl(var(--card-foreground))',
+                          }}
+                          labelStyle={{
+                            color: 'hsl(var(--card-foreground))',
+                            fontWeight: 600,
+                            marginBottom: '4px',
                           }}
                         />
                         <ReferenceLine
