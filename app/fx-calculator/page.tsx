@@ -51,30 +51,33 @@ const IRR_BY_YEARS: Record<number, number> = {
   30: 6.50,
 };
 
-// 基于真实IRR数据计算现金价值（与复利对比工具一致）
-function calculateCashValueByYear(annualPremium: number, year: number): number {
+// 基于用户指定的预期IRR计算现金价值（简化模型，假设5年缴）
+function calculateCashValueByYear(annualPremium: number, year: number, expectedIRR: number): number {
   if (year <= 0) return 0;
 
+  const paymentYears = 5; // 固定5年缴费
   let totalCashValue = 0;
+  const irr = expectedIRR / 100;
 
-  // 假设每年年初缴费，计算每年的现金价值累积
-  for (let i = 1; i <= year; i++) {
-    const yearsSincePayment = year - i + 1;
-    const irr = IRR_BY_YEARS[Math.min(yearsSincePayment, 30)] / 100;
-
-    if (irr < 0) {
-      // 负IRR年份使用回收比例
-      const recoveryFactors: Record<number, number> = {
-        1: 0.02,
-        2: 0.55,
-        3: 0.78,
-        4: 0.88,
-        5: 0.94,
-        6: 0.99,
-      };
-      totalCashValue += annualPremium * (recoveryFactors[yearsSincePayment] || 1);
-    } else {
-      // 正IRR年份使用复利公式
+  // 前7年使用回收比例模拟锁定期
+  if (year <= 7) {
+    const recoveryFactors: Record<number, number> = {
+      1: 0.02,  // 第1年退保约拿回2%
+      2: 0.55,  // 第2年约55%
+      3: 0.78,  // 第3年约78%
+      4: 0.88,  // 第4年约88%
+      5: 0.94,  // 第5年约94%
+      6: 0.99,  // 第6年约99%
+      7: 1.02,  // 第7年约102%（刚回本）
+    };
+    // 锁定期内按总保费计算
+    const totalPremium = Math.min(year, paymentYears) * annualPremium;
+    totalCashValue = totalPremium * (recoveryFactors[year] || 1);
+  } else {
+    // 7年后使用用户指定的IRR复利公式
+    for (let i = 1; i <= paymentYears; i++) {
+      const yearsSincePayment = year - i + 1;
+      if (yearsSincePayment <= 0) continue;
       totalCashValue += annualPremium * Math.pow(1 + irr, yearsSincePayment);
     }
   }
@@ -87,16 +90,33 @@ function calculateYearlyData(
   startRate: number,
   currentRate: number,
   annualPremium: number,
-  years: number
+  expectedIRR: number
 ) {
   const data = [];
+  const paymentYears = 5; // 固定5年缴费
 
   for (let year = 0; year <= 20; year++) {
-    // 现金价值（使用真实IRR计算）
-    const cashValueUSD = calculateCashValueByYear(annualPremium, year);
+    // 现金价值（使用用户指定的预期IRR计算）
+    const cashValueUSD = calculateCashValueByYear(annualPremium, year, expectedIRR);
 
     // 累计已缴保费（美元）
-    const totalPaidUSD = year <= years ? annualPremium * year : annualPremium * years;
+    const totalPaidUSD = Math.min(year, paymentYears) * annualPremium;
+
+    // 锁定期内（1-7年）显示实际回收率，7年后显示用户预期IRR
+    let displayIRR: number;
+    if (year <= 0) {
+      displayIRR = 0;
+    } else if (year <= 7) {
+      // 锁定期内估算实际年化（基于回收比例）
+      const recoveryFactors: Record<number, number> = {
+        1: 0.02, 2: 0.55, 3: 0.78, 4: 0.88, 5: 0.94, 6: 0.99, 7: 1.02
+      };
+      const factor = recoveryFactors[year] || 1;
+      // 简化计算：估算年化IRR
+      displayIRR = factor <= 1 ? -20 + year * 3 : 0.5; // 负数到接近0
+    } else {
+      displayIRR = expectedIRR;
+    }
 
     // 汇率导致的损失/收益
     const fxLoss = totalPaidUSD * (currentRate - startRate);
@@ -110,8 +130,7 @@ function calculateYearlyData(
     // 实际收益 = 现金价值 - 汇率损失 - 投入本金
     const actualProfit = cashValueRMB - fxLoss - investedRMB;
 
-    // 显示IRR
-    const irr = year > 0 ? IRR_BY_YEARS[Math.min(year, 30)] : 0;
+    // 使用计算好的显示IRR
 
     data.push({
       year,
@@ -125,7 +144,7 @@ function calculateYearlyData(
       fxLoss: Math.round(-fxLoss),
       actualProfit: Math.round(actualProfit),
       profitLoss: Math.round(actualProfit),
-      irr: irr.toFixed(1),
+      irr: displayIRR.toFixed(1),
       isLoss: actualProfit < 0,
     });
   }
@@ -148,12 +167,12 @@ export default function FXCalculatorPage() {
   const [startRate, setStartRate] = useState(7.0);
   const [currentRate, setCurrentRate] = useState(7.2);
   const [annualPremium, setAnnualPremium] = useState(10000);
-  const [paymentYears, setPaymentYears] = useState(5);
+  const [expectedIRR, setExpectedIRR] = useState(5.0); // 预期年化收益率 (%)
   const [selectedYear, setSelectedYear] = useState(10); // 用户选择的查看年份
 
   // 计算结果
   const result = useMemo(() => {
-    const yearlyData = calculateYearlyData(startRate, currentRate, annualPremium, paymentYears);
+    const yearlyData = calculateYearlyData(startRate, currentRate, annualPremium, expectedIRR);
     const breakEvenYear = findBreakEvenYear(yearlyData);
     const rateChange = ((currentRate - startRate) / startRate) * 100;
 
@@ -162,7 +181,7 @@ export default function FXCalculatorPage() {
       breakEvenYear,
       rateChange,
     };
-  }, [startRate, currentRate, annualPremium, paymentYears]);
+  }, [startRate, currentRate, annualPremium, expectedIRR]);
 
   // 当前选中的年份数据
   const selectedYearData = result.yearlyData[selectedYear] || result.yearlyData[result.yearlyData.length - 1];
@@ -252,24 +271,29 @@ export default function FXCalculatorPage() {
                   />
                 </div>
 
-                {/* 缴费年期 */}
+                {/* 预期年化收益率 (IRR) */}
                 <div className="space-y-3">
-                  <div className="flex justify-between">
-                    <label className="text-sm font-medium">缴费年期</label>
-                    <span className="text-sm font-medium">{paymentYears}年</span>
+                  <div className="flex justify-between items-center">
+                    <label className="text-sm font-medium">预期年化收益率 (IRR)</label>
+                    <span className="text-sm font-medium text-green-600">{expectedIRR.toFixed(1)}%</span>
                   </div>
                   <input
                     type="range"
-                    min={1}
-                    max={20}
-                    value={paymentYears}
-                    onChange={(e) => setPaymentYears(Number(e.target.value))}
+                    min={3}
+                    max={7}
+                    step={0.1}
+                    value={expectedIRR}
+                    onChange={(e) => setExpectedIRR(Number(e.target.value))}
                     className="w-full"
                   />
                   <div className="flex justify-between text-xs text-muted-foreground">
-                    <span>1年</span>
-                    <span>20年</span>
+                    <span>保守 3%</span>
+                    <span>中性 5%</span>
+                    <span>乐观 7%</span>
                   </div>
+                  <p className="text-xs text-muted-foreground">
+                    参考：香港储蓄险长期IRR通常在5%-6.5%之间
+                  </p>
                 </div>
 
                 {/* 预期退保年份 */}
