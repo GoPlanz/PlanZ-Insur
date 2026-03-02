@@ -191,9 +191,6 @@ export default function BirthdayCalculatorPage() {
       {/* Hero Section */}
       <section className="relative py-20 px-4 sm:px-6 lg:px-8">
         <div className="max-w-4xl mx-auto text-center space-y-6">
-          <Badge variant="outline" className="mb-4">
-            香港保险专用工具
-          </Badge>
           <h1 className="text-4xl sm:text-5xl font-bold tracking-tight">
             生日过后，你的保费可能正在「悄悄上涨」
           </h1>

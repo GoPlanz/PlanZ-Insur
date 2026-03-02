@@ -127,7 +127,7 @@ export default function HomePage() {
       {/* Footer */}
       <footer className="py-12 px-4 sm:px-6 lg:px-8 border-t border-border">
         <div className="max-w-6xl mx-auto text-center text-sm text-muted-foreground">
-          <p>PlanZ Insurance Tools · 专业香港保险咨询工具</p>
+          <p>老古的PlanZ · 专业保险咨询</p>
         </div>
       </footer>
     </div>

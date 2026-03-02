@@ -10,7 +10,7 @@ import { Shield, TrendingUp, DollarSign, Clock, Gamepad2 } from "lucide-react";
 // 工具列表
 const tools = [
   { id: "compound-compare", name: "复利与资产对比", icon: TrendingUp, ready: true },
-  { id: "fx-calculator", name: "汇率盈亏计算器", icon: DollarSign, ready: false },
+  { id: "fx-calculator", name: "汇率盈亏计算器", icon: DollarSign, ready: true },
   { id: "wealth-simulator", name: "财富风险模拟器", icon: Gamepad2, ready: false },
   { id: "birthday-calculator", name: "生日回溯计算器", icon: Clock, ready: true },
   { id: "critical-illness", name: "重疾条款对比", icon: Shield, ready: true },

@@ -370,9 +370,6 @@ export default function CriticalIllnessPage() {
       {/* Hero Section */}
       <section className="relative py-20 px-4 sm:px-6 lg:px-8">
         <div className="max-w-4xl mx-auto text-center space-y-6">
-          <Badge variant="outline" className="mb-4">
-            阶段二工具
-          </Badge>
           <h1 className="text-4xl sm:text-5xl font-bold tracking-tight">
             重疾条款对比
           </h1>

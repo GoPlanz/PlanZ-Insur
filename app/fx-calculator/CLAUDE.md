@@ -56,8 +56,5 @@
 
 | ID | Time | T | Title | Read |
 |----|------|---|-------|------|
-| #1682 | 8:33 PM | 🔄 | FX calculator currency formatting improved | ~261 |
-| #1681 | 8:32 PM | 🔵 | FX calculator results display with profit/loss cards | ~225 |
-| #1680 | " | 🟣 | FX calculator tooltip and styling improvements | ~254 |
-| #1673 | 8:22 PM | 🟣 | FX calculator chart X-axis now clickable for year selection | ~226 |
+| #1700 | 11:37 PM | 🟣 | FX profit/loss calculator page created and committed | ~263 |
 </claude-mem-context>
