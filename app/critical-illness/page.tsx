@@ -608,8 +608,15 @@ export default function CriticalIllnessPage() {
         </div>
       </section>
 
+      {/* Brand Footer */}
+      <footer className="py-6 px-4 sm:px-6 lg:px-8 border-t border-border">
+        <div className="max-w-6xl mx-auto text-center">
+          <p className="text-sm text-muted-foreground">© 2026 老古的PlanZ · 灵活多元的轻量级家族办公室</p>
+        </div>
+      </footer>
+
       {/* 免责声明 */}
-      <footer className="py-8 px-4 sm:px-6 lg:px-8 border-t border-border">
+      <div className="py-4 px-4 sm:px-6 lg:px-8 bg-muted/30">
         <div className="max-w-6xl mx-auto">
           <p className="text-xs text-muted-foreground text-center">
             * 本工具提供的条款对比仅供参考，基于公开的产品条款和手册整理。
@@ -617,7 +624,7 @@ export default function CriticalIllnessPage() {
             不同产品的具体保障范围可能存在差异，详细请参阅正式保单文件。
           </p>
         </div>
-      </footer>
+      </div>
     </div>
   );
 }

@@ -555,15 +555,22 @@ export default function FXCalculatorPage() {
         </div>
       </section>
 
-      {/* Footer */}
-      <footer className="py-8 px-4 sm:px-6 lg:px-8 border-t border-border">
+      {/* Brand Footer */}
+      <footer className="py-6 px-4 sm:px-6 lg:px-8 border-t border-border">
+        <div className="max-w-6xl mx-auto text-center">
+          <p className="text-sm text-muted-foreground">© 2026 老古的PlanZ · 灵活多元的轻量级家族办公室</p>
+        </div>
+      </footer>
+
+      {/* Disclaimer */}
+      <div className="py-4 px-4 sm:px-6 lg:px-8 bg-muted/30">
         <div className="max-w-6xl mx-auto">
           <p className="text-xs text-muted-foreground text-center">
             * 本工具计算结果仅供参考，实际收益受多种因素影响。
             汇率波动可能导致实际收益与预期不符。
           </p>
         </div>
-      </footer>
+      </div>
     </div>
   );
 }

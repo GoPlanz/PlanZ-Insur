@@ -874,6 +874,13 @@ export default function CompoundComparePage() {
           </div>
         </div>
       </div>
+
+      {/* Brand Footer */}
+      <footer className="py-6 px-4 sm:px-6 lg:px-8 border-t border-border mt-8">
+        <div className="max-w-6xl mx-auto text-center">
+          <p className="text-sm text-muted-foreground">© 2026 老古的PlanZ · 灵活多元的轻量级家族办公室</p>
+        </div>
+      </footer>
     </div>
   );
 }
