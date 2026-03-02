@@ -159,11 +159,11 @@ export function getDifferenceDescription(difference: number): string {
   } else if (difference < 3000000) {
     return "相当于一套房产的首付";
   } else if (difference < 8000000) {
-    return "相当于一套核心地段房产";
+    return "相当于孩子从幼儿园到大学的完整教育基金";
   } else if (difference < 20000000) {
-    return "相当于实现财务自由";
+    return "相当于东京一栋收租楼";
   } else {
-    return "相当于两代人的财富差距";
+    return "相当于实现初步财富自由";
   }
 }
 
