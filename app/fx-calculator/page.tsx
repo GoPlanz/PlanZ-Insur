@@ -261,12 +261,16 @@ export default function FXCalculatorPage() {
                 <div className="space-y-2">
                   <label className="text-sm font-medium">每年保费 (美元)</label>
                   <input
-                    type="number"
-                    min={1000}
-                    max={100000}
-                    step={1000}
-                    value={annualPremium}
-                    onChange={(e) => setAnnualPremium(Number(e.target.value))}
+                    type="text"
+                    inputMode="numeric"
+                    value={annualPremium.toLocaleString('en-US')}
+                    onChange={(e) => {
+                      const rawValue = e.target.value.replace(/[^0-9]/g, '');
+                      const numValue = Number(rawValue);
+                      if (numValue >= 0 && numValue <= 1000000) {
+                        setAnnualPremium(numValue);
+                      }
+                    }}
                     className="w-full h-10 px-3 rounded-md border border-input bg-background text-sm"
                   />
                 </div>
